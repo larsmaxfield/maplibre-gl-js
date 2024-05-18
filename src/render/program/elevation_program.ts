@@ -19,7 +19,7 @@ import type {ElevationStyleLayer} from '../../style/style_layer/elevation_style_
 import type {DEMData} from '../../data/dem_data';
 import type {OverscaledTileID} from '../../source/tile_id';
 
-export type HillshadeUniformsType = {
+export type ElevationUniformsType = {
     'u_matrix': UniformMatrix4f;
     'u_image': Uniform1i;
     'u_latrange': Uniform2f;
@@ -37,7 +37,7 @@ export type HillshadePrepareUniformsType = {
     'u_unpack': Uniform4f;
 };
 
-const hillshadeUniforms = (context: Context, locations: UniformLocations): HillshadeUniformsType => ({
+const elevationUniforms = (context: Context, locations: UniformLocations): ElevationUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
     'u_image': new Uniform1i(context, locations.u_image),
     'u_latrange': new Uniform2f(context, locations.u_latrange),
@@ -47,7 +47,7 @@ const hillshadeUniforms = (context: Context, locations: UniformLocations): Hills
     'u_accent': new UniformColor(context, locations.u_accent)
 });
 
-const hillshadePrepareUniforms = (context: Context, locations: UniformLocations): HillshadePrepareUniformsType => ({
+const elevationPrepareUniforms = (context: Context, locations: UniformLocations): HillshadePrepareUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
     'u_image': new Uniform1i(context, locations.u_image),
     'u_dimension': new Uniform2f(context, locations.u_dimension),
@@ -55,12 +55,12 @@ const hillshadePrepareUniforms = (context: Context, locations: UniformLocations)
     'u_unpack': new Uniform4f(context, locations.u_unpack)
 });
 
-const hillshadeUniformValues = (
+const elevationUniformValues = (
     painter: Painter,
     tile: Tile,
     layer: ElevationStyleLayer,
     coord: OverscaledTileID
-): UniformValues<HillshadeUniformsType> => {
+): UniformValues<ElevationUniformsType> => {
     const shadow = layer.paint.get('hillshade-shadow-color');
     const highlight = layer.paint.get('hillshade-highlight-color');
     const accent = layer.paint.get('hillshade-accent-color');
@@ -82,7 +82,7 @@ const hillshadeUniformValues = (
     };
 };
 
-const hillshadeUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData): UniformValues<HillshadePrepareUniformsType> => {
+const elevationUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData): UniformValues<HillshadePrepareUniformsType> => {
 
     const stride = dem.stride;
     const matrix = mat4.create();
@@ -109,8 +109,8 @@ function getTileLatRange(painter: Painter, tileID: OverscaledTileID) {
 }
 
 export {
-    hillshadeUniforms,
-    hillshadePrepareUniforms,
-    hillshadeUniformValues,
-    hillshadeUniformPrepareValues
+    elevationUniforms,
+    elevationPrepareUniforms,
+    elevationUniformValues,
+    elevationUniformPrepareValues
 };

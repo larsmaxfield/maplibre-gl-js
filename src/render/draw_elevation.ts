@@ -5,9 +5,9 @@ import {CullFaceMode} from '../gl/cull_face_mode';
 import {ColorMode} from '../gl/color_mode';
 import {Tile} from '../source/tile';
 import {
-    hillshadeUniformValues,
-    hillshadeUniformPrepareValues
-} from './program/hillshade_program';
+    elevationUniformValues,
+    elevationUniformPrepareValues
+} from './program/elevation_program';
 
 import type {Painter} from './painter';
 import type {SourceCache} from '../source/source_cache';
@@ -50,7 +50,7 @@ function renderElevation(
     const fbo = tile.fbo;
     if (!fbo) return;
 
-    const program = painter.useProgram('hillshade');
+    const program = painter.useProgram('elevation');
     const terrainData = painter.style.map.terrain && painter.style.map.terrain.getTerrainData(coord);
 
     context.activeTexture.set(gl.TEXTURE0);
@@ -58,12 +58,12 @@ function renderElevation(
 
     const terrainCoord = terrainData ? coord : null;
     program.draw(context, gl.TRIANGLES, depthMode, stencilMode, colorMode, CullFaceMode.disabled,
-        hillshadeUniformValues(painter, tile, layer, terrainCoord), terrainData, layer.id, painter.rasterBoundsBuffer,
+        elevationUniformValues(painter, tile, layer, terrainCoord), terrainData, layer.id, painter.rasterBoundsBuffer,
         painter.quadTriangleIndexBuffer, painter.rasterBoundsSegments);
 
 }
 
-// hillshade rendering is done in two steps. the prepare step first calculates the slope of the terrain in the x and y
+// elevation rendering is done in two steps. the prepare step first calculates the slope of the terrain in the x and y
 // directions for each pixel, and saves those values to a framebuffer texture in the r and g channels.
 function prepareElevation(
     painter: Painter,
@@ -108,9 +108,9 @@ function prepareElevation(
         context.bindFramebuffer.set(fbo.framebuffer);
         context.viewport.set([0, 0, tileSize, tileSize]);
 
-        painter.useProgram('hillshadePrepare').draw(context, gl.TRIANGLES,
+        painter.useProgram('elevationPrepare').draw(context, gl.TRIANGLES,
             depthMode, stencilMode, colorMode, CullFaceMode.disabled,
-            hillshadeUniformPrepareValues(tile.tileID, dem),
+            elevationUniformPrepareValues(tile.tileID, dem),
             null, layer.id, painter.rasterBoundsBuffer,
             painter.quadTriangleIndexBuffer, painter.rasterBoundsSegments);
 
