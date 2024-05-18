@@ -65,25 +65,29 @@
                 }
             },
             layers: [
+                
+                {
+                    id: 'elevs',
+                    type: 'elevation',
+                    source: 'elevationSource',
+                    layout: {visibility: 'visible'},
+                },
                 {
                     id: 'rgb',
                     type: 'raster',
-                    source: 'rgb'
+                    source: 'rgb',
+                    paint: {'raster-opacity': 0.2}
                 },
                 {
                     id: 'hills',
                     type: 'hillshade',
                     source: 'elevationSource',
-                    layout: {visibility: 'visible'},
-                    paint: {'hillshade-shadow-color': '#473B24'}
+                    layout: {visibility: 'none'},
+                    paint: {
+                        'hillshade-illumination-anchor': 'map',
+                        'hillshade-shadow-color': '#473B24'
+                    }
                 },
-                {
-                    id: 'elevations',
-                    type: 'elevation',
-                    source: 'elevationSource',
-                    layout: {visibility: 'visible'},
-                    paint: {'hillshade-shadow-color': '#ff00ff'}
-                }
             ],
             terrain: {
                 source: 'terrainSource',
