@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>3D Colormap</title>
+    <meta property="og:description" content="Show elevation with a colormap in 3D." />
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='../../dist/maplibre-gl.css' />
+    <script src='../../dist/maplibre-gl-dev.js'></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        html, body, #map { height: 100%; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    const terrainEncoding = "custom";
+    const interval = 0.1;  // Mapbox 0.1
+    const baseShift = 10000.0;  //  Mapbox 10000.0
+    const redFactor = 256*256*interval;
+    const greenFactor = 256*interval;
+    const blueFactor = 1.0*interval;
+
+    const map = (window.map = new maplibregl.Map({
+        container: 'map',
+        zoom: 12,
+        center: [11.39085, 47.27574],
+        pitch: 52,
+        // maxBounds: [[-Infinity,-90],[Infinity,90]],
+        hash: true,
+        renderWorldCopies: false,
+        style: {
+            version: 8,
+            sources: {
+                rgb: {
+                    type: 'raster',
+                    // tiles: ['../data/almond_blossom_20240516_132209/rgb/{z}/{y}/{x}.png'],
+                    tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tileSize: 256,
+                    maxzoom: 19
+                },
+                // Use a different source for terrain and hillshade layers, to improve render quality
+                terrainSource: {
+                    type: 'raster-dem',
+                    // tiles: ['../data/almond_blossom_20240516_132209/height/{z}/{y}/{x}.png'],
+                    // tileSize: 256,
+                    url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+                    encoding: terrainEncoding,
+                    redFactor: redFactor,
+                    greenFactor: greenFactor,
+                    blueFactor: blueFactor,
+                    baseShift: baseShift,
+                },
+                elevationSource: {
+                    type: 'raster-dem',
+                    // tiles: ['../data/almond_blossom_20240516_132209/height/{z}/{y}/{x}.png'],
+                    // tileSize: 256,
+                    url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+                    encoding: terrainEncoding,
+                    redFactor: redFactor,
+                    greenFactor: greenFactor,
+                    blueFactor: blueFactor,
+                    baseShift: baseShift,
+                }
+            },
+            layers: [
+                {
+                    id: 'rgb',
+                    type: 'raster',
+                    source: 'rgb'
+                },
+                {
+                    id: 'hills',
+                    type: 'elevation',
+                    source: 'elevationSource',
+                    layout: {visibility: 'visible'},
+                    paint: {'hillshade-shadow-color': '#473B24'}
+                }
+            ],
+            terrain: {
+                source: 'terrainSource',
+                exaggeration: 1
+            }
+        },
+        maxZoom: 18,
+        maxPitch: 85
+    }));
+
+    map.addControl(
+        new maplibregl.NavigationControl({
+            visualizePitch: true,
+            showZoom: true,
+            showCompass: true
+        })
+    );
+
+    map.addControl(
+        new maplibregl.TerrainControl({
+            source: 'terrainSource',
+            exaggeration: 1
+        })
+    );
+</script>
+</body>
+</html>
