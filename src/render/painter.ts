@@ -27,6 +27,7 @@ import {drawLine} from './draw_line';
 import {drawFill} from './draw_fill';
 import {drawFillExtrusion} from './draw_fill_extrusion';
 import {drawHillshade} from './draw_hillshade';
+import {drawElevation} from './draw_elevation';
 import {drawRaster} from './draw_raster';
 import {drawBackground} from './draw_background';
 import {drawDebug, drawDebugPadding, selectDebugSource} from './draw_debug';
@@ -514,6 +515,9 @@ export class Painter {
                 break;
             case 'hillshade':
                 drawHillshade(painter, sourceCache, layer as any, coords);
+                break;
+            case 'elevation':
+                drawElevation(painter, sourceCache, layer as any, coords);
                 break;
             case 'raster':
                 drawRaster(painter, sourceCache, layer as any, coords);
