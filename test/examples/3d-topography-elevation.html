@@ -72,10 +72,17 @@
                 },
                 {
                     id: 'hills',
-                    type: 'elevation',
+                    type: 'hillshade',
                     source: 'elevationSource',
                     layout: {visibility: 'visible'},
                     paint: {'hillshade-shadow-color': '#473B24'}
+                },
+                {
+                    id: 'elevations',
+                    type: 'elevation',
+                    source: 'elevationSource',
+                    layout: {visibility: 'visible'},
+                    paint: {'hillshade-shadow-color': '#ff00ff'}
                 }
             ],
             terrain: {

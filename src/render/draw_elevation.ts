@@ -7,7 +7,7 @@ import {Tile} from '../source/tile';
 import {
     hillshadeUniformValues,
     hillshadeUniformPrepareValues
-} from './program/hillshade_program';
+} from './program/elevation_program';
 
 import type {Painter} from './painter';
 import type {SourceCache} from '../source/source_cache';
