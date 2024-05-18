@@ -76,7 +76,10 @@
                     id: 'rgb',
                     type: 'raster',
                     source: 'rgb',
-                    paint: {'raster-opacity': 0.2}
+                    paint: {
+                        'raster-opacity': 0.2,
+                        'raster-resampling': 'nearest',
+                    }
                 },
                 {
                     id: 'hills',
@@ -85,7 +88,7 @@
                     layout: {visibility: 'none'},
                     paint: {
                         'hillshade-illumination-anchor': 'map',
-                        'hillshade-shadow-color': '#473B24'
+                        'hillshade-shadow-color': '#473B24',
                     }
                 },
             ],
