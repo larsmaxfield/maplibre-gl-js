@@ -1,17 +1,39 @@
 import {StyleLayer} from '../style_layer';
 
-import properties, {HillshadePaintPropsPossiblyEvaluated} from './hillshade_style_layer_properties.g';
+import properties, {ElevationPaintPropsPossiblyEvaluated} from './elevation_style_layer_properties.NOTg';
 import {Transitionable, Transitioning, PossiblyEvaluated} from '../properties';
 
-import type {HillshadePaintProps} from './hillshade_style_layer_properties.g';
-import type {LayerSpecification} from '@maplibre/maplibre-gl-style-spec';
+import type {ElevationPaintProps} from './elevation_style_layer_properties.NOTg';
+import type {ColorSpecification, FilterSpecification, PropertyValueSpecification} from '@maplibre/maplibre-gl-style-spec';
+
+export type ElevationLayerSpecification = {
+	"id": string;
+	"type": "elevation";
+	"metadata"?: unknown;
+	"source": string;
+	"source-layer"?: string;
+	"minzoom"?: number;
+	"maxzoom"?: number;
+	"filter"?: FilterSpecification;
+	"layout"?: {
+		"visibility"?: "visible" | "none";
+	};
+	"paint"?: {
+		"hillshade-illumination-direction"?: PropertyValueSpecification<number>;
+		"hillshade-illumination-anchor"?: PropertyValueSpecification<"map" | "viewport">;
+		"hillshade-exaggeration"?: PropertyValueSpecification<number>;
+		"hillshade-shadow-color"?: PropertyValueSpecification<ColorSpecification>;
+		"hillshade-highlight-color"?: PropertyValueSpecification<ColorSpecification>;
+		"hillshade-accent-color"?: PropertyValueSpecification<ColorSpecification>;
+	};
+};
 
 export class ElevationStyleLayer extends StyleLayer {
-    _transitionablePaint: Transitionable<HillshadePaintProps>;
-    _transitioningPaint: Transitioning<HillshadePaintProps>;
-    paint: PossiblyEvaluated<HillshadePaintProps, HillshadePaintPropsPossiblyEvaluated>;
+    // _transitionablePaint: Transitionable<ElevationPaintProps>;
+    // _transitioningPaint: Transitioning<ElevationPaintProps>;
+    paint: PossiblyEvaluated<ElevationPaintProps, ElevationPaintPropsPossiblyEvaluated>;
 
-    constructor(layer: LayerSpecification) {
+    constructor(layer: ElevationLayerSpecification) {
         super(layer, properties);
     }
 
