@@ -21,6 +21,7 @@ import type {CrossfadeParameters} from './evaluation_parameters';
 
 import type {Transform} from '../geo/transform';
 import type {CustomLayerInterface} from './style_layer/custom_style_layer';
+import type {ElevationLayerSpecification} from './style_layer/elevation_style_layer';
 import type {Map} from '../ui/map';
 import type {StyleSetterOptions} from './style';
 import {mat4} from 'gl-matrix';
@@ -34,7 +35,7 @@ const TRANSITION_SUFFIX = '-transition';
 export abstract class StyleLayer extends Evented {
     id: string;
     metadata: unknown;
-    type: LayerSpecification['type'] | CustomLayerInterface['type'];
+    type: LayerSpecification['type'] | CustomLayerInterface['type'] | ElevationLayerSpecification['type'];
     source: string;
     sourceLayer: string;
     minzoom: number;
@@ -67,7 +68,7 @@ export abstract class StyleLayer extends Evented {
         pixelPosMatrix: mat4
     ): boolean | number;
 
-    constructor(layer: LayerSpecification | CustomLayerInterface, properties: Readonly<{
+    constructor(layer: LayerSpecification | CustomLayerInterface | ElevationLayerSpecification, properties: Readonly<{
         layout?: Properties<any>;
         paint?: Properties<any>;
     }>) {

@@ -1,7 +1,7 @@
 import {CircleStyleLayer} from './style_layer/circle_style_layer';
 import {HeatmapStyleLayer} from './style_layer/heatmap_style_layer';
 import {HillshadeStyleLayer} from './style_layer/hillshade_style_layer';
-import {ElevationStyleLayer} from './style_layer/elevation_style_layer';
+import {ElevationStyleLayer, type ElevationLayerSpecification} from './style_layer/elevation_style_layer';
 import {FillStyleLayer} from './style_layer/fill_style_layer';
 import {FillExtrusionStyleLayer} from './style_layer/fill_extrusion_style_layer';
 import {LineStyleLayer} from './style_layer/line_style_layer';
@@ -12,9 +12,12 @@ import {CustomStyleLayer, type CustomLayerInterface} from './style_layer/custom_
 
 import type {LayerSpecification} from '@maplibre/maplibre-gl-style-spec';
 
-export function createStyleLayer(layer: LayerSpecification | CustomLayerInterface) {
+export function createStyleLayer(layer: LayerSpecification | CustomLayerInterface | ElevationLayerSpecification) {
     if (layer.type === 'custom') {
         return new CustomStyleLayer(layer);
+    }
+    if (layer.type === 'elevation') {
+        return new ElevationStyleLayer(layer);
     }
     switch (layer.type) {
         case 'background':
@@ -29,8 +32,6 @@ export function createStyleLayer(layer: LayerSpecification | CustomLayerInterfac
             return new HeatmapStyleLayer(layer);
         case 'hillshade':
             return new HillshadeStyleLayer(layer);
-        case 'elevation':
-            return new ElevationStyleLayer(layer);
         case 'line':
             return new LineStyleLayer(layer);
         case 'raster':
