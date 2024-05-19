@@ -1,9 +1,9 @@
 import {StyleLayer} from '../style_layer';
 
-import properties, {HillshadePaintPropsPossiblyEvaluated} from './hillshade_style_layer_properties.g';
+import properties, {HillshadePaintPropsPossiblyEvaluated} from './elevation_style_layer_properties.NOTg';
 import {Transitionable, Transitioning, PossiblyEvaluated} from '../properties';
 
-import type {HillshadePaintProps} from './hillshade_style_layer_properties.g';
+import type {HillshadePaintProps} from './elevation_style_layer_properties.NOTg';
 import type {LayerSpecification} from '@maplibre/maplibre-gl-style-spec';
 
 export class ElevationStyleLayer extends StyleLayer {
