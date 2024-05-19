@@ -1,10 +1,10 @@
 import {StyleLayer} from '../style_layer';
 
-import properties, {HillshadePaintPropsPossiblyEvaluated} from './elevation_style_layer_properties.NOTg';
+import properties, {ElevationPaintPropsPossiblyEvaluated} from './elevation_style_layer_properties.NOTg';
 import {Transitionable, Transitioning, PossiblyEvaluated} from '../properties';
 
-import type {HillshadePaintProps} from './elevation_style_layer_properties.NOTg';
-import type {ColorSpecification, FilterSpecification, LayerSpecification, PropertyValueSpecification} from '@maplibre/maplibre-gl-style-spec';
+import type {ElevationPaintProps} from './elevation_style_layer_properties.NOTg';
+import type {ColorSpecification, FilterSpecification, PropertyValueSpecification} from '@maplibre/maplibre-gl-style-spec';
 
 export type ElevationLayerSpecification = {
 	"id": string;
@@ -29,9 +29,9 @@ export type ElevationLayerSpecification = {
 };
 
 export class ElevationStyleLayer extends StyleLayer {
-    _transitionablePaint: Transitionable<HillshadePaintProps>;
-    _transitioningPaint: Transitioning<HillshadePaintProps>;
-    paint: PossiblyEvaluated<HillshadePaintProps, HillshadePaintPropsPossiblyEvaluated>;
+    // _transitionablePaint: Transitionable<ElevationPaintProps>;
+    // _transitioningPaint: Transitioning<ElevationPaintProps>;
+    paint: PossiblyEvaluated<ElevationPaintProps, ElevationPaintPropsPossiblyEvaluated>;
 
     constructor(layer: ElevationLayerSpecification) {
         super(layer, properties);
