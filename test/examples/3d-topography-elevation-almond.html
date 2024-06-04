@@ -15,7 +15,7 @@
 <body>
 <div id="map"></div>
 <script>
-    const terrainExaggeration = 300;  // 1.0 default 
+    const terrainExaggeration = 300.0;  // 1.0 default 
     const terrainEncoding = "custom";
     const interval = 0.13;  // Mapbox 0.1, Almond Blossom 0.09
     const baseShift = 2000;  //  Mapbox 10000.0, Almond Blossom 2000
@@ -29,7 +29,7 @@
     // the decoding used for hillshading appears to fall back on the default MapBox. 
     // Decoding values in hlllshade/elev layer source values are simply ignored.
     const elevationEncoding = "custom"; 
-    const elevationInterval = 0.12;  // Mapbox 0.1, Almond Blossom 0.09
+    const elevationInterval = 0.13;  // Mapbox 0.1, Almond Blossom 0.09
     const elevationBaseShift = 2000;  //  Mapbox 10000.0, Almond Blossom 0
     const elevationRedFactor = 256*256*interval;
     const elevationGreenFactor = 256*interval;

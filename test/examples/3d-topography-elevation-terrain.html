@@ -15,10 +15,10 @@
 <body>
 <div id="map"></div>
 <script>
-    const terrainExaggeration = 1;  // 1.0 default 
+    const terrainExaggeration = 1.0;  // 1.0 default 
     const terrainEncoding = "custom";
-    const interval = 0.1;  // Mapbox 0.1, Almond Blossom 0.09
-    const baseShift = 10000.0;  //  Mapbox 10000.0, Almond Blossom 2000
+    const interval = 0.1;  // Mapbox 0.1
+    const baseShift = 10000.0;  //  Mapbox 10000.0
     const redFactor = 256*256*interval;
     const greenFactor = 256*interval;
     const blueFactor = 1.0*interval;
@@ -74,7 +74,6 @@
                 }
             },
             layers: [
-                
                 {
                     id: 'elevs',
                     type: 'elevation',
