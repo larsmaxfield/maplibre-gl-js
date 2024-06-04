@@ -25,7 +25,8 @@ export type ElevationPaintProps = {
     "hillshade-shadow-color": DataConstantProperty<Color>,
     "hillshade-highlight-color": DataConstantProperty<Color>,
     "hillshade-accent-color": DataConstantProperty<Color>,
-    "tacos": DataConstantProperty<number>,
+    "elevation-colormap-breakpoint-low": DataConstantProperty<number>,
+    "elevation-colormap-breakpoint-high": DataConstantProperty<number>,
 };
 
 export type ElevationPaintPropsPossiblyEvaluated = {
@@ -35,7 +36,8 @@ export type ElevationPaintPropsPossiblyEvaluated = {
     "hillshade-shadow-color": Color,
     "hillshade-highlight-color": Color,
     "hillshade-accent-color": Color,
-    "tacos": number,
+    "elevation-colormap-breakpoint-low": number,
+    "elevation-colormap-breakpoint-high": number,
 };
 
 let paint: Properties<ElevationPaintProps>;
@@ -46,26 +48,40 @@ const getPaint = () => paint = paint || new Properties({
     "hillshade-shadow-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_hillshade"]["hillshade-shadow-color"] as any as StylePropertySpecification),
     "hillshade-highlight-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_hillshade"]["hillshade-highlight-color"] as any as StylePropertySpecification),
     "hillshade-accent-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_hillshade"]["hillshade-accent-color"] as any as StylePropertySpecification),
-    "tacos": new DataConstantProperty(elevationDefaultStyleSpec["kitchen"]["tacos"] as any as StylePropertySpecification),
+    "elevation-colormap-breakpoint-low": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-breakpoint-low"] as any as StylePropertySpecification),
+    "elevation-colormap-breakpoint-high": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-breakpoint-high"] as any as StylePropertySpecification),
 });
 
 export default ({ get paint() { return getPaint() } });
 
 const elevationDefaultStyleSpec = {
-    "kitchen": {
-        "tacos": {
+    "paint_elevation": {
+        "elevation-colormap-breakpoint-low": {
             "type": "number",
-            "doc": "They are delicious",
-            "default": 1,
-            "minimum": 0,
-            "maximum": 100,
+            "doc": "The low breakpoint for the colormap in elevation units.",
+            "default": 0,
             "transition": true,
             "sdk-support": {
                 "basic functionality": {
                 "js": "0.43.0",
-                "android": "6.0.0",
-                "ios": "4.0.0",
-                "macos": "0.7.0"
+                }
+            },
+            "expression": {
+                "interpolated": true,
+                "parameters": [
+                "zoom"
+                ]
+            },
+            "property-type": "data-constant"
+        },
+        "elevation-colormap-breakpoint-high": {
+            "type": "number",
+            "doc": "The high breakpoint for the colormap in elevation units.",
+            "default": 65535,
+            "transition": true,
+            "sdk-support": {
+                "basic functionality": {
+                "js": "0.43.0",
                 }
             },
             "expression": {
