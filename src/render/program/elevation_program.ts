@@ -29,7 +29,7 @@ export type ElevationUniformsType = {
     'u_accent': UniformColor;
 };
 
-export type HillshadePrepareUniformsType = {
+export type ElevationPrepareUniformsType = {
     'u_matrix': UniformMatrix4f;
     'u_image': Uniform1i;
     'u_dimension': Uniform2f;
@@ -47,7 +47,7 @@ const elevationUniforms = (context: Context, locations: UniformLocations): Eleva
     'u_accent': new UniformColor(context, locations.u_accent)
 });
 
-const elevationPrepareUniforms = (context: Context, locations: UniformLocations): HillshadePrepareUniformsType => ({
+const elevationPrepareUniforms = (context: Context, locations: UniformLocations): ElevationPrepareUniformsType => ({
     'u_matrix': new UniformMatrix4f(context, locations.u_matrix),
     'u_image': new Uniform1i(context, locations.u_image),
     'u_dimension': new Uniform2f(context, locations.u_dimension),
@@ -82,7 +82,7 @@ const elevationUniformValues = (
     };
 };
 
-const elevationUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData): UniformValues<HillshadePrepareUniformsType> => {
+const elevationUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData): UniformValues<ElevationPrepareUniformsType> => {
 
     const stride = dem.stride;
     const matrix = mat4.create();
