@@ -8,12 +8,13 @@ in vec2 v_pos;
 
 uniform vec2 u_dimension;
 uniform float u_zoom;
-uniform vec4 u_unpack;
+uniform vec4 u_unpack;  // Unpacking (decoding) values: red factor, green factor, blue factor, baseshift
+uniform vec2 u_breakpoints;
 
 float getElevation(vec2 coord, float bias) {
     // Convert encoded elevation value to meters
-    vec4 data = texture(u_image, coord) * 255.0;
-    data.a = -1.0;
+    vec4 data = texture(u_image, coord) * 255.0;  // Retrieve RGBA texture values at that coordinate
+    data.a = -1.0;  // Set alpha channel to -1.0 so that the baseshift is subtracted during dot product (e.g., 10000 baseshift results in -10000)
     return dot(data, u_unpack) / 4.0;
 }
 
@@ -85,7 +86,9 @@ void main() {
     //    1.0,
     //    1.0), 0.0, 1.0);
 
-    vec3 colormap = viridis(a/1000.0);
+    // vec3 colormap = viridis(a/1000.0);
+
+    vec3 colormap = a < u_breakpoints[0] ? vec3(0,0,0) : a > u_breakpoints[1] ? vec3(1,1,1) : viridis(a/1000.0);
 
     fragColor = clamp(vec4(
         colormap,

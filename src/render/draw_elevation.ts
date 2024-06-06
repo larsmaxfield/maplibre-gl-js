@@ -110,7 +110,7 @@ function prepareElevation(
 
         painter.useProgram('elevationPrepare').draw(context, gl.TRIANGLES,
             depthMode, stencilMode, colorMode, CullFaceMode.disabled,
-            elevationUniformPrepareValues(tile.tileID, dem),
+            elevationUniformPrepareValues(tile.tileID, dem, layer),
             null, layer.id, painter.rasterBoundsBuffer,
             painter.quadTriangleIndexBuffer, painter.rasterBoundsSegments);
 

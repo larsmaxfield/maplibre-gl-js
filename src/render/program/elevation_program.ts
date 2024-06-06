@@ -27,6 +27,7 @@ export type ElevationUniformsType = {
     'u_shadow': UniformColor;
     'u_highlight': UniformColor;
     'u_accent': UniformColor;
+    'u_breakpoints': Uniform2f;
 };
 
 export type ElevationPrepareUniformsType = {
@@ -35,6 +36,7 @@ export type ElevationPrepareUniformsType = {
     'u_dimension': Uniform2f;
     'u_zoom': Uniform1f;
     'u_unpack': Uniform4f;
+    'u_breakpoints': Uniform2f;
 };
 
 const elevationUniforms = (context: Context, locations: UniformLocations): ElevationUniformsType => ({
@@ -44,7 +46,8 @@ const elevationUniforms = (context: Context, locations: UniformLocations): Eleva
     'u_light': new Uniform2f(context, locations.u_light),
     'u_shadow': new UniformColor(context, locations.u_shadow),
     'u_highlight': new UniformColor(context, locations.u_highlight),
-    'u_accent': new UniformColor(context, locations.u_accent)
+    'u_accent': new UniformColor(context, locations.u_accent),
+    'u_breakpoints': new Uniform2f(context, locations.u_breakpoints)
 });
 
 const elevationPrepareUniforms = (context: Context, locations: UniformLocations): ElevationPrepareUniformsType => ({
@@ -52,7 +55,8 @@ const elevationPrepareUniforms = (context: Context, locations: UniformLocations)
     'u_image': new Uniform1i(context, locations.u_image),
     'u_dimension': new Uniform2f(context, locations.u_dimension),
     'u_zoom': new Uniform1f(context, locations.u_zoom),
-    'u_unpack': new Uniform4f(context, locations.u_unpack)
+    'u_unpack': new Uniform4f(context, locations.u_unpack),
+    'u_breakpoints': new Uniform2f(context, locations.u_breakpoints)
 });
 
 const elevationUniformValues = (
@@ -71,6 +75,10 @@ const elevationUniformValues = (
         azimuthal -= painter.transform.angle;
     }
     const align = !painter.options.moving;
+
+    const breaklow = layer.paint.get('elevation-colormap-breakpoint-low');
+    const breakhigh = layer.paint.get('elevation-colormap-breakpoint-high');
+
     return {
         'u_matrix': coord ? coord.posMatrix : painter.transform.calculatePosMatrix(tile.tileID.toUnwrapped(), align),
         'u_image': 0,
@@ -78,11 +86,12 @@ const elevationUniformValues = (
         'u_light': [layer.paint.get('hillshade-exaggeration'), azimuthal],
         'u_shadow': shadow,
         'u_highlight': highlight,
-        'u_accent': accent
+        'u_accent': accent,
+        'u_breakpoints': [breaklow, breakhigh],
     };
 };
 
-const elevationUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData): UniformValues<ElevationPrepareUniformsType> => {
+const elevationUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData, layer: ElevationStyleLayer): UniformValues<ElevationPrepareUniformsType> => {
 
     const stride = dem.stride;
     const matrix = mat4.create();
@@ -90,12 +99,16 @@ const elevationUniformPrepareValues = (tileID: OverscaledTileID, dem: DEMData): 
     mat4.ortho(matrix, 0, EXTENT, -EXTENT, 0, 0, 1);
     mat4.translate(matrix, matrix, [0, -EXTENT, 0]);
 
+    const breaklow = layer.paint.get('elevation-colormap-breakpoint-low');
+    const breakhigh = layer.paint.get('elevation-colormap-breakpoint-high');
+
     return {
         'u_matrix': matrix,
         'u_image': 1,
         'u_dimension': [stride, stride],
         'u_zoom': tileID.overscaledZ,
-        'u_unpack': dem.getUnpackVector()
+        'u_unpack': dem.getUnpackVector(),
+        'u_breakpoints': [breaklow, breakhigh],
     };
 };
 
@@ -107,6 +120,10 @@ function getTileLatRange(painter: Painter, tileID: OverscaledTileID) {
         new MercatorCoordinate(0, y / tilesAtZoom).toLngLat().lat,
         new MercatorCoordinate(0, (y + 1) / tilesAtZoom).toLngLat().lat];
 }
+
+// TODO: Function to get highest and lowest elevation in the viewable tiles to set breakpoints automatically 
+// Get inspiration from getTileLatRange
+// getTileElevationRange()
 
 export {
     elevationUniforms,

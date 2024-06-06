@@ -6,6 +6,7 @@ uniform vec2 u_light;
 uniform vec4 u_shadow;
 uniform vec4 u_highlight;
 uniform vec4 u_accent;
+uniform vec2 u_breakpoints;
 
 #define PI 3.141592653589793
 
