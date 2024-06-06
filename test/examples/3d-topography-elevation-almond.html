@@ -15,17 +15,17 @@
 <body>
 <div id="map"></div>
 <script>
-    const terrainExaggeration = 300.0;  // 1.0 default Mapbox 
+    const terrainExaggeration = 20.0;  // 1.0 default Mapbox 
     const terrainEncoding = "custom";
-    const interval = 0.1;  // Mapbox 0.1
-    const baseShift = 10000.0;  //  Mapbox 10000.0
+    const interval = 1.0;  // Mapbox 0.1
+    const baseShift = 0.0;  //  Mapbox 10000.0
     const redFactor = 256*256*interval;
     const greenFactor = 256*interval;
     const blueFactor = 1.0*interval;
 
     const elevationEncoding = "custom"; 
-    const elevationInterval = 0.13;  // Almond Blossom 0.13
-    const elevationBaseShift = 2000.0;  //  Almond Blossom 2000.0
+    const elevationInterval = 1.0;  // Almond Blossom 0.13
+    const elevationBaseShift = 0.0;  //  Almond Blossom 2000.0
     const elevationRedFactor = 256*256*elevationInterval;
     const elevationGreenFactor = 256*elevationInterval;
     const elevationBlueFactor = 1.0*elevationInterval;
@@ -47,7 +47,6 @@
                     tiles: ['../data/almond_blossom_20240516_132209/rgb/{z}/{y}/{x}.png'],
                     // tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
                     tileSize: 256,
-                    maxzoom: 19
                 },
                 // Use a different source for terrain and hillshade layers, to improve render quality
                 terrainSource: {
@@ -81,8 +80,8 @@
                     source: 'elevationSource',
                     layout: {visibility: 'visible'},
                     paint: {
-                        'elevation-colormap-breakpoint-low': 500,
-                        'elevation-colormap-breakpoint-high': 2500,
+                        'elevation-colormap-breakpoint-low': 14000,
+                        'elevation-colormap-breakpoint-high': 45000, 
                     },
                 },
                 {
@@ -91,7 +90,7 @@
                     source: 'rgb',
                     layout: {visibility: 'none'},
                     paint: {
-                        'raster-opacity': 0.2,
+                        'raster-opacity': 0.5,
                         'raster-resampling': 'nearest',
                     }
                 },
@@ -126,7 +125,7 @@
     map.addControl(
         new maplibregl.TerrainControl({
             source: 'terrainSource',
-            exaggeration: 1
+            exaggeration: terrainExaggeration
         })
     );
 </script>
