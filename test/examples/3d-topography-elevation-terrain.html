@@ -19,9 +19,9 @@
     const terrainEncoding = "custom";
     const interval = 1.0;  // Amazon Terrarium 1.0
     const baseShift = 32768.0;  // Amazon Terrarium 32768.0 (2^15)
-    const redFactor = 256*interval;  //  Amazon Terrarium 256*
+    const redFactor = 256.0*interval;  //  Amazon Terrarium 256*
     const greenFactor = interval;  //  Amazon Terrarium 1*
-    const blueFactor = interval/256;  //  Amazon Terrarium /256
+    const blueFactor = interval/256.0;  //  Amazon Terrarium /256
     // const interval = 0.1;  // Mapbox 0.1
     // const baseShift = 10000.0;  //  Mapbox 10000.0
     // const redFactor = 256*256*interval;
@@ -77,17 +77,17 @@
                     source: 'elevationSource',
                     layout: {visibility: 'visible'},
                     paint: {
-                        'elevation-colormap-breakpoint-low': 0,
-                        'elevation-colormap-breakpoint-high': 600,
+                        'elevation-colormap-breakpoint-low': 0,  // Sea level
+                        'elevation-colormap-breakpoint-high': 4809,  // Everest 8849, Mont Blanc 4809
                     },
                 },
                 {
                     id: 'rgb',
                     type: 'raster',
                     source: 'rgb',
-                    // layout: {visibility: 'none'},
+                    layout: {visibility: 'none'},
                     paint: {
-                        'raster-opacity': 0.5,
+                        'raster-opacity': 0.2,
                         'raster-resampling': 'nearest',
                     }
                 },
