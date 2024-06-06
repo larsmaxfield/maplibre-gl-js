@@ -15,7 +15,7 @@ float getElevation(vec2 coord, float bias) {
     // Convert encoded elevation value to meters
     vec4 data = texture(u_image, coord) * 255.0;  // Retrieve RGBA texture values at that coordinate
     data.a = -1.0;  // Set alpha channel to -1.0 so that the baseshift is subtracted during dot product (e.g., 10000 baseshift results in -10000)
-    return dot(data, u_unpack) / 4.0;
+    return dot(data, u_unpack);
 }
 
 // fitting polynomials to matplotlib colormaps
