@@ -17,11 +17,16 @@
 <script>
     const terrainExaggeration = 1.0;  // 1.0 default 
     const terrainEncoding = "custom";
-    const interval = 0.1;  // Mapbox 0.1
-    const baseShift = 10000.0;  //  Mapbox 10000.0
-    const redFactor = 256*256*interval;
-    const greenFactor = 256*interval;
-    const blueFactor = 1.0*interval;
+    const interval = 1.0;  // Amazon Terrarium 1.0
+    const baseShift = 32768.0;  // Amazon Terrarium 32768.0 (2^15)
+    const redFactor = 256*interval;  //  Amazon Terrarium 256*
+    const greenFactor = interval;  //  Amazon Terrarium 1*
+    const blueFactor = interval/256;  //  Amazon Terrarium /256
+    // const interval = 0.1;  // Mapbox 0.1
+    // const baseShift = 10000.0;  //  Mapbox 10000.0
+    // const redFactor = 256*256*interval;
+    // const greenFactor = 256*interval;
+    // const blueFactor = 1.0*interval;
 
     const map = (window.map = new maplibregl.Map({
         validateStyle: false,
@@ -45,6 +50,8 @@
                 terrainSource: {
                     type: 'raster-dem',
                     url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+                    tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+                    tileSize: 256,
                     encoding: terrainEncoding,
                     redFactor: redFactor,
                     greenFactor: greenFactor,
@@ -54,6 +61,8 @@
                 elevationSource: {
                     type: 'raster-dem',
                     url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+                    tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+                    tileSize: 256,
                     encoding: terrainEncoding,
                     redFactor: redFactor,
                     greenFactor: greenFactor,
@@ -68,17 +77,17 @@
                     source: 'elevationSource',
                     layout: {visibility: 'visible'},
                     paint: {
-                        'elevation-colormap-breakpoint-low': 500,
-                        'elevation-colormap-breakpoint-high': 2500,
+                        'elevation-colormap-breakpoint-low': 0,
+                        'elevation-colormap-breakpoint-high': 600,
                     },
                 },
                 {
                     id: 'rgb',
                     type: 'raster',
                     source: 'rgb',
-                    layout: {visibility: 'visible'},
+                    // layout: {visibility: 'none'},
                     paint: {
-                        'raster-opacity': 0.2,
+                        'raster-opacity': 0.5,
                         'raster-resampling': 'nearest',
                     }
                 },
