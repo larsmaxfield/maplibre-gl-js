@@ -15,7 +15,7 @@
 <body>
 <div id="map"></div>
 <script>
-    const terrainExaggeration = 20.0;  // 1.0 default Mapbox 
+    const terrainExaggeration = 10.0;  // 1.0 default Mapbox 
     const terrainEncoding = "custom";
     const interval = 1.0;  // Mapbox 0.1
     const baseShift = 0.0;  //  Mapbox 10000.0
@@ -70,7 +70,18 @@
                     greenFactor: elevationGreenFactor,
                     blueFactor: elevationBlueFactor,
                     baseShift: elevationBaseShift,
-                }
+                },
+                hillshadeSource: {
+                    type: 'raster-dem',
+                    tiles: ['../data/almond_blossom_20240516_132209/height/{z}/{y}/{x}.png'],
+                    tileSize: 256,
+                    // url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+                    encoding: terrainEncoding,
+                    redFactor: redFactor,
+                    greenFactor: greenFactor,
+                    blueFactor: blueFactor,
+                    baseShift: baseShift,
+                },
             },
             layers: [
                 
@@ -78,7 +89,7 @@
                     id: 'elevs',
                     type: 'elevation',
                     source: 'elevationSource',
-                    layout: {visibility: 'visible'},
+                    // layout: {visibility: 'none'},
                     paint: {
                         'elevation-colormap-breakpoint-low': 14000,
                         'elevation-colormap-breakpoint-high': 45000, 
@@ -97,9 +108,10 @@
                 {
                     id: 'hills',
                     type: 'hillshade',
-                    source: 'elevationSource',
-                    layout: {visibility: 'none'},
+                    source: 'hillshadeSource',
+                    // layout: {visibility: 'none'},
                     paint: {
+                        'hillshade-exaggeration': 0.3,
                         'hillshade-illumination-anchor': 'map',
                         'hillshade-shadow-color': '#473B24',
                     }

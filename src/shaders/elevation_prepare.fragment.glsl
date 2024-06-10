@@ -9,7 +9,7 @@ in vec2 v_pos;
 uniform vec2 u_dimension;
 uniform float u_zoom;
 uniform vec4 u_unpack;  // Unpacking (decoding) values: red factor, green factor, blue factor, baseshift
-uniform vec2 u_breakpoints;
+uniform vec2 u_breakpoints;  // Lowest and highest elevation breakpoints of colormap in elevation units [ low, high ]
 
 float getElevation(vec2 coord, float bias) {
     // Convert encoded elevation value to meters
@@ -92,7 +92,7 @@ vec3 inferno(float t) {
 }
 
 void main() {
-    vec2 epsilon = 1.0 / u_dimension;
+    // vec2 epsilon = 1.0 / u_dimension;
 
     // queried pixels:
     // +-----------+
@@ -109,15 +109,15 @@ void main() {
     // |   |   |   |
     // +-----------+
 
-    float a = getElevation(v_pos + vec2(-epsilon.x, -epsilon.y), 0.0);
-    float b = getElevation(v_pos + vec2(0, -epsilon.y), 0.0);
-    float c = getElevation(v_pos + vec2(epsilon.x, -epsilon.y), 0.0);
-    float d = getElevation(v_pos + vec2(-epsilon.x, 0), 0.0);
-    float e = getElevation(v_pos, 0.0);
-    float f = getElevation(v_pos + vec2(epsilon.x, 0), 0.0);
-    float g = getElevation(v_pos + vec2(-epsilon.x, epsilon.y), 0.0);
-    float h = getElevation(v_pos + vec2(0, epsilon.y), 0.0);
-    float i = getElevation(v_pos + vec2(epsilon.x, epsilon.y), 0.0);
+    // float a = getElevation(v_pos + vec2(-epsilon.x, -epsilon.y), 0.0);
+    // float b = getElevation(v_pos + vec2(0, -epsilon.y), 0.0);
+    // float c = getElevation(v_pos + vec2(epsilon.x, -epsilon.y), 0.0);
+    // float d = getElevation(v_pos + vec2(-epsilon.x, 0), 0.0);
+    // float e = getElevation(v_pos, 0.0);
+    // float f = getElevation(v_pos + vec2(epsilon.x, 0), 0.0);
+    // float g = getElevation(v_pos + vec2(-epsilon.x, epsilon.y), 0.0);
+    // float h = getElevation(v_pos + vec2(0, epsilon.y), 0.0);
+    // float i = getElevation(v_pos + vec2(epsilon.x, epsilon.y), 0.0);
 
     // Here we divide the x and y slopes by 8 * pixel size
     // where pixel size (aka meters/pixel) is:
@@ -131,13 +131,13 @@ void main() {
     // See nickidlugash's awesome breakdown for more info:
     // https://github.com/mapbox/mapbox-gl-js/pull/5286#discussion_r148419556
 
-    float exaggerationFactor = u_zoom < 2.0 ? 0.4 : u_zoom < 4.5 ? 0.35 : 0.3;
-    float exaggeration = u_zoom < 15.0 ? (u_zoom - 15.0) * exaggerationFactor : 0.0;
+    // float exaggerationFactor = u_zoom < 2.0 ? 0.4 : u_zoom < 4.5 ? 0.35 : 0.3;
+    // float exaggeration = u_zoom < 15.0 ? (u_zoom - 15.0) * exaggerationFactor : 0.0;
 
-    vec2 deriv = vec2(
-        (c + f + f + i) - (a + d + d + g),
-        (g + h + h + i) - (a + b + b + c)
-    ) / pow(2.0, exaggeration + (19.2562 - u_zoom));
+    // vec2 deriv = vec2(
+    //     (c + f + f + i) - (a + d + d + g),
+    //     (g + h + h + i) - (a + b + b + c)
+    // ) / pow(2.0, exaggeration + (19.2562 - u_zoom));
 
     // fragColor = clamp(vec4(
     //    deriv.x / 2.0 + 0.5,
@@ -147,12 +147,19 @@ void main() {
 
     // vec3 colormap = viridis(a/1000.0);
 
+
+    float e = getElevation(v_pos, 0.0);
+
     float high = u_breakpoints[1];
     float low = u_breakpoints[0];
 
-    float e_norm = (e - low) / ( high - low );
+    float e_norm = clamp(
+        (e - low) / ( high - low ),
+        0.0, 1.0);
 
-    vec4 colormap = e < low ? vec4(1,0,1,1) : e > high ? vec4(1,1,1,0) : vec4(viridis(e_norm), 1.0);
+    float e_low_override = 1.0;
+
+    vec4 colormap = e < e_low_override ? vec4(1.0, 0.0, 1.0, 1.0) : vec4(viridis(e_norm), 1.0);
 
     fragColor = clamp(
         colormap,

@@ -47,7 +47,7 @@ void main() {
     vec4 shade_color = mix(u_shadow, u_highlight, shade) * sin(scaledSlope) * clamp(intensity * 2.0, 0.0, 1.0);
     // fragColor = accent_color * (1.0 - shade_color.a) + shade_color;
 
-    fragColor = vec4(pixel.rgb, 1.0);
+    fragColor = vec4(pixel.rgba);
 
 #ifdef OVERDRAW_INSPECTOR
     fragColor = vec4(1.0);
