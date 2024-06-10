@@ -81,7 +81,6 @@ export const shaders = {
     fillExtrusionPattern: compile(fillExtrusionPatternFrag, fillExtrusionPatternVert),
     hillshadePrepare: compile(hillshadePrepareFrag, hillshadePrepareVert),
     hillshade: compile(hillshadeFrag, hillshadeVert),
-    elevationPrepare: compile(elevationPrepareFrag, elevationPrepareVert),
     elevation: compile(elevationFrag, elevationVert),
     line: compile(lineFrag, lineVert),
     lineGradient: compile(lineGradientFrag, lineGradientVert),
@@ -95,6 +94,13 @@ export const shaders = {
     terrainDepth: compile(terrainDepthFrag, terrainVert),
     terrainCoords: compile(terrainCoordsFrag, terrainVert)
 };
+
+export function elevationShaders(colormapReplace: string) {
+    let replacedElevationPrepareFrag = elevationPrepareFrag.replace('<COLORMAP>', colormapReplace);
+    return {
+        elevationPrepare: compile(replacedElevationPrepareFrag, elevationPrepareVert),
+    }
+}
 
 // Expand #pragmas to #ifdefs.
 

@@ -10,6 +10,8 @@ uniform vec2 u_dimension;
 uniform float u_zoom;
 uniform vec4 u_unpack;  // Unpacking (decoding) values: red factor, green factor, blue factor, baseshift
 uniform vec2 u_breakpoints;  // Lowest and highest elevation breakpoints of colormap in elevation units [ low, high ]
+uniform float u_lowcutoff;  // Cutoff value such that any value lower than it is assigned the same color, useful for coloring NaNs or values below sea-level
+uniform vec4 u_lowcutoffcolor;  // Color by which to assign values lower than the minimum cutoff
 
 float getElevation(vec2 coord, float bias) {
     // Convert encoded elevation value to meters
@@ -34,6 +36,8 @@ float getElevation(vec2 coord, float bias) {
 //
 // data fitted from https://github.com/BIDS/colormap/blob/master/colormaps.py
 // (which is licensed CC0)
+
+<COLORMAP>  // Replaced in shaders.ts; example: 'vec4 colormap(float t) {vec4(vec3(t), 1.0)};'
 
 vec3 viridis(float t) {
 
@@ -145,7 +149,7 @@ void main() {
     //    1.0,
     //    1.0), 0.0, 1.0);
 
-    // vec3 colormap = viridis(a/1000.0);
+    // vec3 color = viridis(a/1000.0);
 
 
     float e = getElevation(v_pos, 0.0);
@@ -157,12 +161,12 @@ void main() {
         (e - low) / ( high - low ),
         0.0, 1.0);
 
-    float e_low_override = 1.0;
+    // float e_low_override = 1.0;
 
-    vec4 colormap = e < e_low_override ? vec4(1.0, 0.0, 1.0, 1.0) : vec4(viridis(e_norm), 1.0);
+    vec4 color = e < u_lowcutoff ? u_lowcutoffcolor : colormap(e_norm);
 
     fragColor = clamp(
-        colormap,
+        color,
         0.0, 1.0);
 
 #ifdef OVERDRAW_INSPECTOR

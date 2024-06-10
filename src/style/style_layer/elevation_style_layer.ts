@@ -27,6 +27,9 @@ export type ElevationLayerSpecification = {
 		"hillshade-accent-color"?: PropertyValueSpecification<ColorSpecification>;
 		"elevation-colormap-breakpoint-low"?: PropertyValueSpecification<number>;
 		"elevation-colormap-breakpoint-high"?: PropertyValueSpecification<number>;
+		"elevation-colormap-function"?: PropertyValueSpecification<string>;
+		"elevation-colormap-lowcutoff"?: PropertyValueSpecification<number>;
+		"elevation-colormap-lowcutoff-color"?: PropertyValueSpecification<ColorSpecification>;
 	};
 };
 

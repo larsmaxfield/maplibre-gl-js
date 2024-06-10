@@ -9,7 +9,7 @@ import rasterBoundsAttributes from '../data/raster_bounds_attributes';
 import posAttributes from '../data/pos_attributes';
 import {ProgramConfiguration} from '../data/program_configuration';
 import {CrossTileSymbolIndex} from '../symbol/cross_tile_symbol_index';
-import {shaders} from '../shaders/shaders';
+import {shaders, elevationShaders} from '../shaders/shaders';
 import {Program} from './program';
 import {programUniforms} from './program/program_uniforms';
 import {Context} from '../gl/context';
@@ -600,6 +600,25 @@ export class Painter {
             this.cache[key] = new Program(
                 this.context,
                 shaders[name],
+                programConfiguration,
+                programUniforms[name],
+                this._showOverdrawInspector,
+                this.style.map.terrain
+            );
+        }
+        return this.cache[key];
+    }
+
+    useElevationProgram(name: string, colormapReplace: string, programConfiguration?: ProgramConfiguration | null): Program<any> {
+        this.cache = this.cache || {};
+        const key = name +
+            (programConfiguration ? programConfiguration.cacheKey : '') +
+            (this._showOverdrawInspector ? '/overdraw' : '') +
+            (this.style.map.terrain ? '/terrain' : '');
+        if (!this.cache[key]) {
+            this.cache[key] = new Program(
+                this.context,
+                elevationShaders(colormapReplace)[name],
                 programConfiguration,
                 programUniforms[name],
                 this._showOverdrawInspector,

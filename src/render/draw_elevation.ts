@@ -78,6 +78,7 @@ function prepareElevation(
     if (dem && dem.data) {
         const tileSize = dem.dim;
         const textureStride = dem.stride;
+        const colormapShaderFunction = layer.paint.get('elevation-colormap-function');
 
         const pixelData = dem.getPixels();
         context.activeTexture.set(gl.TEXTURE1);
@@ -108,7 +109,7 @@ function prepareElevation(
         context.bindFramebuffer.set(fbo.framebuffer);
         context.viewport.set([0, 0, tileSize, tileSize]);
 
-        painter.useProgram('elevationPrepare').draw(context, gl.TRIANGLES,
+        painter.useElevationProgram('elevationPrepare', colormapShaderFunction).draw(context, gl.TRIANGLES,
             depthMode, stencilMode, colorMode, CullFaceMode.disabled,
             elevationUniformPrepareValues(tile.tileID, dem, layer),
             null, layer.id, painter.rasterBoundsBuffer,

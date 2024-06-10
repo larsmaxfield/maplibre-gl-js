@@ -27,6 +27,9 @@ export type ElevationPaintProps = {
     "hillshade-accent-color": DataConstantProperty<Color>,
     "elevation-colormap-breakpoint-low": DataConstantProperty<number>,
     "elevation-colormap-breakpoint-high": DataConstantProperty<number>,
+    "elevation-colormap-function": DataConstantProperty<string>,
+    "elevation-colormap-lowcutoff": DataConstantProperty<number>,
+    "elevation-colormap-lowcutoff-color": DataConstantProperty<Color>,
 };
 
 export type ElevationPaintPropsPossiblyEvaluated = {
@@ -38,6 +41,9 @@ export type ElevationPaintPropsPossiblyEvaluated = {
     "hillshade-accent-color": Color,
     "elevation-colormap-breakpoint-low": number,
     "elevation-colormap-breakpoint-high": number,
+    "elevation-colormap-function": string,
+    "elevation-colormap-lowcutoff": number,
+    "elevation-colormap-lowcutoff-color": Color,
 };
 
 let paint: Properties<ElevationPaintProps>;
@@ -50,6 +56,9 @@ const getPaint = () => paint = paint || new Properties({
     "hillshade-accent-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_hillshade"]["hillshade-accent-color"] as any as StylePropertySpecification),
     "elevation-colormap-breakpoint-low": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-breakpoint-low"] as any as StylePropertySpecification),
     "elevation-colormap-breakpoint-high": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-breakpoint-high"] as any as StylePropertySpecification),
+    "elevation-colormap-function": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-function"] as any as StylePropertySpecification),
+    "elevation-colormap-lowcutoff": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-lowcutoff"] as any as StylePropertySpecification),
+    "elevation-colormap-lowcutoff-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-lowcutoff-color"] as any as StylePropertySpecification),
 });
 
 export default ({ get paint() { return getPaint() } });
@@ -78,6 +87,47 @@ const elevationDefaultStyleSpec = {
             "type": "number",
             "doc": "The high breakpoint for the colormap in elevation units.",
             "default": 65535,
+            "transition": true,
+            "sdk-support": {
+                "basic functionality": {
+                "js": "0.43.0",
+                }
+            },
+            "expression": {
+                "interpolated": true,
+                "parameters": [
+                "zoom"
+                ]
+            },
+            "property-type": "data-constant"
+        },
+        "elevation-colormap-function": {
+            "type": "string",
+            "doc": "The shader function for assigning the vec4 color (rgba) given a float value [0,1].",
+            "default": "vec4 colormap(float t) {return vec4(vec3(t), 1.0);}",
+        },
+        "elevation-colormap-lowcutoff": {
+            "type": "number",
+            "doc": "The value below which all values are assigned the same color. Useful for coloring NaNs.",
+            "default": 1,
+            "transition": true,
+            "sdk-support": {
+                "basic functionality": {
+                "js": "0.43.0",
+                }
+            },
+            "expression": {
+                "interpolated": true,
+                "parameters": [
+                "zoom"
+                ]
+            },
+            "property-type": "data-constant"
+        },
+        "elevation-colormap-lowcutoff-color": {
+            "type": "color",
+            "default": "#FF00FF",
+            "doc": "The color of values below the low cutoff.",
             "transition": true,
             "sdk-support": {
                 "basic functionality": {
