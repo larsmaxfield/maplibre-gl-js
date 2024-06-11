@@ -1,3 +1,7 @@
+#ifdef GL_ES
+precision highp float;
+#endif
+
 uniform sampler2D u_image;
 in vec2 v_pos;
 
@@ -9,6 +13,21 @@ uniform vec4 u_accent;
 uniform vec2 u_breakpoints;
 
 #define PI 3.141592653589793
+
+float getElevation(vec2 coord) {
+    // Convert encoded elevation value to meters
+    vec4 data = texture(u_image, coord) * 255.0;  // Retrieve RGBA texture values at that coordinate
+    data.a = -1.0;  // Set alpha channel to -1.0 so that the baseshift is subtracted during dot product (e.g., 10000 baseshift results in -10000)
+    vec4 u_unpack = vec4(256.0, 1.0, 1.0/256.0, 32768.0);
+    return dot(data, u_unpack);
+}
+
+float unpackElevation(vec4 rgba) {
+    vec4 data = rgba * 255.0;
+    data.a = -1.0;  // Set alpha channel to -1.0 so that the baseshift is subtracted during dot product (e.g., 10000 baseshift results in -10000)
+    vec4 u_unpack = vec4(256.0, 1.0, 1.0/256.0, 32768.0);
+    return dot(data, u_unpack);
+}
 
 void main() {
     vec4 pixel = texture(u_image, v_pos);
@@ -47,7 +66,23 @@ void main() {
     // vec4 shade_color = mix(u_shadow, u_highlight, shade) * sin(scaledSlope) * clamp(intensity * 2.0, 0.0, 1.0);
     // // fragColor = accent_color * (1.0 - shade_color.a) + shade_color;
 
-    fragColor = vec4(pixel.rgba);
+
+    /// fragColor = vec4(pixel.rgba);
+
+
+    // float e = getElevation(v_pos);
+    float e = unpackElevation(pixel);
+
+    float high = u_breakpoints[1];
+    float low = u_breakpoints[0];
+
+    float e_norm = clamp(
+        (e - low) / ( high - low ),
+        0.0, 1.0);
+
+    vec4 color = e < -100.0 ? vec4(1.0) : vec4(e_norm, e_norm, e_norm, 1.0);
+
+    fragColor = color;
 
 #ifdef OVERDRAW_INSPECTOR
     fragColor = vec4(1.0);

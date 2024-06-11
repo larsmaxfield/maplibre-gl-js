@@ -152,22 +152,23 @@ void main() {
     // vec3 color = viridis(a/1000.0);
 
 
-    float e = getElevation(v_pos, 0.0);
+    /// float e = getElevation(v_pos, 0.0);
+/// 
+    /// float high = u_breakpoints[1];
+    /// float low = u_breakpoints[0];
+/// 
+    /// float e_norm = clamp(
+    ///     (e - low) / ( high - low ),
+    ///     0.0, 1.0);
+/// 
+    /// vec4 color = e < u_lowcutoff ? u_lowcutoffcolor : colormap(e_norm);
+/// 
+    /// fragColor = clamp(
+    ///     color,
+    ///     0.0, 1.0);
 
-    float high = u_breakpoints[1];
-    float low = u_breakpoints[0];
 
-    float e_norm = clamp(
-        (e - low) / ( high - low ),
-        0.0, 1.0);
-
-    // float e_low_override = 1.0;
-
-    vec4 color = e < u_lowcutoff ? u_lowcutoffcolor : colormap(e_norm);
-
-    fragColor = clamp(
-        color,
-        0.0, 1.0);
+    fragColor = texture(u_image, v_pos);
 
 #ifdef OVERDRAW_INSPECTOR
     fragColor = vec4(1.0);

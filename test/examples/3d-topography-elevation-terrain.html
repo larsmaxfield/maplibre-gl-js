@@ -42,6 +42,20 @@
         }
         `;
 
+    const grayscaleShaderFunction = `
+        vec4 colormap(float t) {
+            //          r  g  b  a
+            return vec4(t, t, t, 1.0);
+        }
+        `;
+
+    const redscaleShaderFunction = `
+        vec4 colormap(float t) {
+            //          r  g  b  a
+            return vec4(t, 0.0, 0.0, 1.0);
+        }
+        `;
+
     const map = (window.map = new maplibregl.Map({
         validateStyle: false,
         container: 'map',
@@ -102,10 +116,10 @@
                     source: 'elevationSource',
                     layout: {visibility: 'visible'},
                     paint: {
-                        'elevation-colormap-breakpoint-low': 100,  // Sea level 0
-                        'elevation-colormap-breakpoint-high': 4809,  // Everest 8849, Mont Blanc 4809
+                        'elevation-colormap-breakpoint-low': 0.0,  // Sea level 0
+                        'elevation-colormap-breakpoint-high': 4809.0,  // Everest 8849, Mont Blanc 4809
                         'elevation-colormap-function': viridisShaderFunction,
-                        'elevation-colormap-lowcutoff': -100,
+                        'elevation-colormap-lowcutoff': -100.0,
                         'elevation-colormap-lowcutoff-color': '#ffffff00',
                     },
                 },
@@ -154,6 +168,30 @@
             exaggeration: 1
         })
     );
+
+    map.on('load', () => {
+        // Once the map has finished loading,
+        // add a new layer
+        map.setPaintProperty(
+                    'elevs',
+                    'elevation-colormap-breakpoint-low',
+                    3000.0
+                );
+        // map.setPaintProperty(
+        //             'hills',
+        //             'hillshade-exaggeration',
+        //             1.0
+        //         );
+        // setTimeout(() => {
+        //     map.terrain.sourceCache.freeRtt();
+        //     map.terrain.sourceCache.sourceCache.reload();
+        // }, 200);
+        map.terrain.sourceCache.freeRtt();
+        map.terrain.sourceCache.sourceCache.reload();
+        
+        // map.terrain.sourceCache.freeRtt();
+    });
+
 </script>
 </body>
 </html>
