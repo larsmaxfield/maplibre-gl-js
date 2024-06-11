@@ -8,16 +8,33 @@
     <link rel='stylesheet' href='../../dist/maplibre-gl.css' />
     <script src='../../dist/maplibre-gl-dev.js'></script>
     <style>
-        body { margin: 0; padding: 0; }
-        html, body, #map { height: 100%; }
+        html, body { margin: 0; padding: 0; height: 100% }
+        body {
+            display: flex;
+        }
+        #container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        #sliders {
+            flex: none;
+        }
+        #map {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
-<div id="map">
+<div id="container">
+    <div id="sliders">
+        <p>Slider whose "mouseup" is listened to by the map</p>
+        <input type="range" min="-1000" max="4000" value="0" id="slider">
+    </div>
+    <div id="map">
+    </div>
 </div>
-<div id="sliderdiv">
-    <input type="range" min="-1000" max="4000" value="0" class="slider" id="slider">
-</div>
+
 <script>
     const terrainExaggeration = 1.0;  // 1.0 default 
     const terrainEncoding = "custom";
@@ -173,28 +190,28 @@
         })
     );
 
-    map.on('load', () => {
-        // Once the map has finished loading,
-        // set paint property and
-        // free tiles and reload on 0.200 sec timeout
-        map.setPaintProperty(
-                    'elevs',
-                    'elevation-colormap-breakpoint-low',
-                    1500.0
-                );
-        map.setPaintProperty(
-                    'elevs',
-                    'elevation-colormap-lowcutoff',
-                    1000.0
-                );
-        setTimeout(() => {
-            map.terrain.sourceCache.freeRtt();
-            map.terrain.sourceCache.sourceCache.reload();
-        }, 200);
-    });
+    // map.on('load', () => {
+    //     // Once the map has finished loading,
+    //     // set paint property and
+    //     // free tiles and reload on 0.200 sec timeout
+    //     map.setPaintProperty(
+    //                 'elevs',
+    //                 'elevation-colormap-breakpoint-low',
+    //                 1500.0
+    //             );
+    //     map.setPaintProperty(
+    //                 'elevs',
+    //                 'elevation-colormap-lowcutoff',
+    //                 1000.0
+    //             );
+    //     setTimeout(() => {
+    //         map.terrain.sourceCache.freeRtt();
+    //         map.terrain.sourceCache.sourceCache.reload();
+    //     }, 200);
+    // });
 
     document.getElementById('slider')
-        .addEventListener('input', (e) => {
+        .addEventListener('mouseup', (e) => {
             const value = parseInt(e.target.value, 10);
             map.setPaintProperty(
                     'elevs',
@@ -211,7 +228,7 @@
                     'elevation-colormap-lowcutoff',
                     value-1000
                 );
-            setTimeout(() => {
+            setTimeout(() => { // Required as a timeout, otherwise changes to paint props are not reflected
                 map.terrain.sourceCache.freeRtt();
                 map.terrain.sourceCache.sourceCache.reload();
             }, 200);
