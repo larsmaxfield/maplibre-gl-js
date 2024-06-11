@@ -47,10 +47,12 @@ function renderElevation(
     colorMode: Readonly<ColorMode>) {
     const context = painter.context;
     const gl = context.gl;
+    const dem = tile.dem;
     const fbo = tile.fbo;
+    const colormapShaderFunction = layer.paint.get('elevation-colormap-function');
     if (!fbo) return;
 
-    const program = painter.useProgram('elevation');
+    const program = painter.useElevationProgram('elevation', colormapShaderFunction);
     const terrainData = painter.style.map.terrain && painter.style.map.terrain.getTerrainData(coord);
 
     context.activeTexture.set(gl.TEXTURE0);
@@ -58,7 +60,7 @@ function renderElevation(
 
     const terrainCoord = terrainData ? coord : null;
     program.draw(context, gl.TRIANGLES, depthMode, stencilMode, colorMode, CullFaceMode.disabled,
-        elevationUniformValues(painter, tile, layer, terrainCoord), terrainData, layer.id, painter.rasterBoundsBuffer,
+        elevationUniformValues(painter, tile, dem, layer, terrainCoord), terrainData, layer.id, painter.rasterBoundsBuffer,
         painter.quadTriangleIndexBuffer, painter.rasterBoundsSegments);
 
 }

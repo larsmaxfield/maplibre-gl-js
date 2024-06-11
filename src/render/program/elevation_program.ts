@@ -27,7 +27,10 @@ export type ElevationUniformsType = {
     'u_shadow': UniformColor;
     'u_highlight': UniformColor;
     'u_accent': UniformColor;
+    'u_unpack': Uniform4f;
     'u_breakpoints': Uniform2f;
+    'u_lowcutoff': Uniform1f;
+    'u_lowcutoffcolor': UniformColor;
 };
 
 export type ElevationPrepareUniformsType = {
@@ -49,7 +52,10 @@ const elevationUniforms = (context: Context, locations: UniformLocations): Eleva
     'u_shadow': new UniformColor(context, locations.u_shadow),
     'u_highlight': new UniformColor(context, locations.u_highlight),
     'u_accent': new UniformColor(context, locations.u_accent),
-    'u_breakpoints': new Uniform2f(context, locations.u_breakpoints)
+    'u_unpack': new Uniform4f(context, locations.u_unpack),
+    'u_breakpoints': new Uniform2f(context, locations.u_breakpoints),
+    'u_lowcutoff': new Uniform1f(context, locations.u_lowcutoff),
+    'u_lowcutoffcolor': new UniformColor(context, locations.u_lowcutoffcolor),
 });
 
 const elevationPrepareUniforms = (context: Context, locations: UniformLocations): ElevationPrepareUniformsType => ({
@@ -66,6 +72,7 @@ const elevationPrepareUniforms = (context: Context, locations: UniformLocations)
 const elevationUniformValues = (
     painter: Painter,
     tile: Tile,
+    dem: DEMData,
     layer: ElevationStyleLayer,
     coord: OverscaledTileID
 ): UniformValues<ElevationUniformsType> => {
@@ -82,6 +89,8 @@ const elevationUniformValues = (
 
     const breaklow = layer.paint.get('elevation-colormap-breakpoint-low');
     const breakhigh = layer.paint.get('elevation-colormap-breakpoint-high');
+    const lowcutoff = layer.paint.get('elevation-colormap-lowcutoff');
+    const lowcutoffcolor = layer.paint.get('elevation-colormap-lowcutoff-color');
 
     return {
         'u_matrix': coord ? coord.posMatrix : painter.transform.calculatePosMatrix(tile.tileID.toUnwrapped(), align),
@@ -91,7 +100,10 @@ const elevationUniformValues = (
         'u_shadow': shadow,
         'u_highlight': highlight,
         'u_accent': accent,
+        'u_unpack': dem.getUnpackVector(),
         'u_breakpoints': [breaklow, breakhigh],
+        'u_lowcutoff': lowcutoff,
+        'u_lowcutoffcolor': lowcutoffcolor,
     };
 };
 

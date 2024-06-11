@@ -13,7 +13,11 @@
     </style>
 </head>
 <body>
-<div id="map"></div>
+<div id="map">
+</div>
+<div id="sliderdiv">
+    <input type="range" min="-1000" max="4000" value="0" class="slider" id="slider">
+</div>
 <script>
     const terrainExaggeration = 1.0;  // 1.0 default 
     const terrainEncoding = "custom";
@@ -120,7 +124,7 @@
                         'elevation-colormap-breakpoint-high': 4809.0,  // Everest 8849, Mont Blanc 4809
                         'elevation-colormap-function': viridisShaderFunction,
                         'elevation-colormap-lowcutoff': -100.0,
-                        'elevation-colormap-lowcutoff-color': '#ffffff00',
+                        'elevation-colormap-lowcutoff-color': '#ffffffff',
                     },
                 },
                 {
@@ -171,26 +175,47 @@
 
     map.on('load', () => {
         // Once the map has finished loading,
-        // add a new layer
+        // set paint property and
+        // free tiles and reload on 0.200 sec timeout
         map.setPaintProperty(
                     'elevs',
                     'elevation-colormap-breakpoint-low',
-                    3000.0
+                    1500.0
                 );
-        // map.setPaintProperty(
-        //             'hills',
-        //             'hillshade-exaggeration',
-        //             1.0
-        //         );
-        // setTimeout(() => {
-        //     map.terrain.sourceCache.freeRtt();
-        //     map.terrain.sourceCache.sourceCache.reload();
-        // }, 200);
-        map.terrain.sourceCache.freeRtt();
-        map.terrain.sourceCache.sourceCache.reload();
-        
-        // map.terrain.sourceCache.freeRtt();
+        map.setPaintProperty(
+                    'elevs',
+                    'elevation-colormap-lowcutoff',
+                    1000.0
+                );
+        setTimeout(() => {
+            map.terrain.sourceCache.freeRtt();
+            map.terrain.sourceCache.sourceCache.reload();
+        }, 200);
     });
+
+    document.getElementById('slider')
+        .addEventListener('input', (e) => {
+            const value = parseInt(e.target.value, 10);
+            map.setPaintProperty(
+                    'elevs',
+                    'elevation-colormap-breakpoint-low',
+                    value
+                );
+            map.setPaintProperty(
+                    'elevs',
+                    'elevation-colormap-breakpoint-high',
+                    value+3000
+                );
+            map.setPaintProperty(
+                    'elevs',
+                    'elevation-colormap-lowcutoff',
+                    value-1000
+                );
+            setTimeout(() => {
+                map.terrain.sourceCache.freeRtt();
+                map.terrain.sourceCache.sourceCache.reload();
+            }, 200);
+        });
 
 </script>
 </body>
