@@ -24,7 +24,12 @@ float getElevation(vec2 coord) {
     return dot(data, u_unpack);
 }
 
-<COLORMAP>  // Replaced in shaders.ts; example: 'vec4 colormap(float t) {vec4(vec3(t), 1.0)};'
+// Replaced in shaders.ts; default is grayscale: 'vec4 colormap(float t) {return vec4(vec3(t), 1.0);}'
+<colormap>
+vec4 colormap(float t) {
+    return vec4(vec3(t), 1.0);
+}
+</colormap>
 
 void main() {
 

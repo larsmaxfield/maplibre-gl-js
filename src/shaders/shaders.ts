@@ -96,8 +96,17 @@ export const shaders = {
 
 export function elevationShaders(colormapReplace: string) {
     return {
-        elevationPrepare: compile(elevationPrepareFrag.replace('<COLORMAP>', colormapReplace), elevationPrepareVert),
-        elevation: compile(elevationFrag.replace('<COLORMAP>', colormapReplace), elevationVert),
+        // elevationPrepare: compile(elevationPrepareFrag.replace('<COLORMAP>', colormapReplace), elevationPrepareVert),
+        elevationPrepare: compile(elevationPrepareFrag, elevationPrepareVert),
+        elevation: compile(
+            elevationFrag.replace(
+                /(<colormap>)[\s\S](.*?)(?=<\/colormap>)/, '$1'+colormapReplace
+            ).replace(
+                '<colormap>',''
+            ).replace(
+                '<\/colormap>',''
+            ),
+            elevationVert),
     }
 }
 

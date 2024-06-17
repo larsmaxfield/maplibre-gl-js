@@ -37,7 +37,7 @@ float getElevation(vec2 coord, float bias) {
 // data fitted from https://github.com/BIDS/colormap/blob/master/colormaps.py
 // (which is licensed CC0)
 
-<COLORMAP>  // Replaced in shaders.ts; example: 'vec4 colormap(float t) {vec4(vec3(t), 1.0)};'
+// <COLORMAP>  // Replaced in shaders.ts; example: 'vec4 colormap(float t) {vec4(vec3(t), 1.0)};'
 
 vec3 viridis(float t) {
 
