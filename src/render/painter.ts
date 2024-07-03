@@ -613,7 +613,7 @@ export class Painter {
         return this.cache[key];
     }
 
-    useElevationProgram(name: string, colormapReplace: string, programConfiguration?: ProgramConfiguration | null): Program<any> {
+    useElevationProgram(name: string, colormapReplace: string, mainReplace: string, programConfiguration?: ProgramConfiguration | null): Program<any> {
         this.cache = this.cache || {};
         const key = name +
             (programConfiguration ? programConfiguration.cacheKey : '') +
@@ -622,7 +622,7 @@ export class Painter {
         if (!this.cache[key]) {
             this.cache[key] = new Program(
                 this.context,
-                elevationShaders(colormapReplace)[name],
+                elevationShaders(colormapReplace, mainReplace)[name],
                 programConfiguration,
                 programUniforms[name],
                 this._showOverdrawInspector,

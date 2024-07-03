@@ -98,18 +98,26 @@ export const shaders = {
     terrainCoords: compile(terrainCoordsFrag, terrainCoordsVert),
     sky: compile(skyFrag, skyVert)};
 
-export function elevationShaders(colormapReplace: string) {
+export function elevationShaders(colormapReplace: string, mainReplace: string) {
+    console.log(elevationFrag);
+    const replacedElevationFrag = elevationFrag.replace(
+            /(<colormap>)[\s\S](.*?)(?=<\/colormap>)/, '$1'+colormapReplace
+        ).replace(
+            '<colormap>',''
+        ).replace(
+            '<\/colormap>',''
+        ).replace(
+            /(<main>)[\s\S]*(.*?)(?=<\/main>)/, '$1'+mainReplace
+        ).replace(
+            '<main>',''
+        ).replace(
+            '<\/main>',''
+        );
+    console.log(replacedElevationFrag);
     return {
-        // elevationPrepare: compile(elevationPrepareFrag.replace('<COLORMAP>', colormapReplace), elevationPrepareVert),
         elevationPrepare: compile(elevationPrepareFrag, elevationPrepareVert),
         elevation: compile(
-            elevationFrag.replace(
-                /(<colormap>)[\s\S](.*?)(?=<\/colormap>)/, '$1'+colormapReplace
-            ).replace(
-                '<colormap>',''
-            ).replace(
-                '<\/colormap>',''
-            ),
+            replacedElevationFrag,
             elevationVert),
     }
 }

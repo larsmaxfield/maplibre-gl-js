@@ -30,6 +30,7 @@ export type ElevationPaintProps = {
     "elevation-colormap-function": DataConstantProperty<string>,
     "elevation-colormap-lowcutoff": DataConstantProperty<number>,
     "elevation-colormap-lowcutoff-color": DataConstantProperty<Color>,
+    "elevation-main-function": DataConstantProperty<string>,
 };
 
 export type ElevationPaintPropsPossiblyEvaluated = {
@@ -44,6 +45,7 @@ export type ElevationPaintPropsPossiblyEvaluated = {
     "elevation-colormap-function": string,
     "elevation-colormap-lowcutoff": number,
     "elevation-colormap-lowcutoff-color": Color,
+    "elevation-main-function": string,
 };
 
 let paint: Properties<ElevationPaintProps>;
@@ -59,6 +61,7 @@ const getPaint = () => paint = paint || new Properties({
     "elevation-colormap-function": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-function"] as any as StylePropertySpecification),
     "elevation-colormap-lowcutoff": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-lowcutoff"] as any as StylePropertySpecification),
     "elevation-colormap-lowcutoff-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-lowcutoff-color"] as any as StylePropertySpecification),
+    "elevation-main-function": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-main-function"] as any as StylePropertySpecification),
 });
 
 export default ({ get paint() { return getPaint() } });
@@ -141,6 +144,33 @@ const elevationDefaultStyleSpec = {
                 ]
             },
             "property-type": "data-constant"
+        },
+        "elevation-main-function": {
+            "type": "string",
+            "doc": "The 'void main()' shader function for elevation.",
+            "default": `
+                void main() {
+
+                    float e = getElevation(v_pos);
+
+                    float high = u_breakpoints[1];
+                    float low = u_breakpoints[0];
+
+                    float e_norm = clamp(
+                        (e - low) / ( high - low ),
+                        0.0, 1.0);
+
+                    vec4 color = e < u_lowcutoff ? u_lowcutoffcolor : colormap(e_norm);
+
+                    gl_FragColor = clamp(
+                        color,
+                        0.0, 1.0);
+
+                #ifdef OVERDRAW_INSPECTOR
+                    gl_FragColor = vec4(1.0);
+                #endif
+                }
+                `,
         },
     },
     "paint_hillshade": {

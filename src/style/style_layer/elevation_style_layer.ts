@@ -30,6 +30,7 @@ export type ElevationLayerSpecification = {
 		"elevation-colormap-function"?: PropertyValueSpecification<string>;
 		"elevation-colormap-lowcutoff"?: PropertyValueSpecification<number>;
 		"elevation-colormap-lowcutoff-color"?: PropertyValueSpecification<ColorSpecification>;
+		"elevation-main-function"?: PropertyValueSpecification<string>;
 	};
 };
 

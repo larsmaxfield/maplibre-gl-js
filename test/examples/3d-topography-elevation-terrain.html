@@ -49,6 +49,31 @@
     // const greenFactor = 256*interval;
     // const blueFactor = 1.0*interval;
 
+    // Custom main shader function
+    const customMainShaderFunction = `
+        void main() {
+
+            float e = getElevation(v_pos);
+
+            float high = u_breakpoints[1];
+            float low = u_breakpoints[0];
+
+            float e_norm = clamp(
+                (e - low) / ( high - low ),
+                0.0, 1.0);
+
+            vec4 color = e < u_lowcutoff ? vec4(1.0, 0.0, 0.0, 1.0) : colormap(e_norm);
+
+            gl_FragColor = clamp(
+                color,
+                0.0, 1.0);
+
+        #ifdef OVERDRAW_INSPECTOR
+            gl_FragColor = vec4(1.0);
+        #endif
+        }
+        `;
+
     // Colormaps as shader functions
     const grayscaleShaderFunction = `
         vec4 colormap(float t) {
@@ -258,7 +283,8 @@
                     paint: {
                         'elevation-colormap-breakpoint-low': 0.0,  // Sea level 0
                         'elevation-colormap-breakpoint-high': 4809.0,  // Everest 8849, Mont Blanc 4809
-                        'elevation-colormap-function': twilightShaderFunction,
+                        'elevation-colormap-function': viridisShaderFunction,
+                        'elevation-main-function': customMainShaderFunction,
                         'elevation-colormap-lowcutoff': -100.0,
                         'elevation-colormap-lowcutoff-color': '#ffffffff',
                     },
