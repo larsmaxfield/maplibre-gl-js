@@ -20,6 +20,8 @@ float getElevation(vec2 coord, float bias) {
     return dot(data, u_unpack);
 }
 
+// Replaced in shaders.ts; default is below for reference.
+<main>
 void main() {
 
     fragColor = texture(u_image, v_pos);
@@ -28,3 +30,4 @@ void main() {
     fragColor = vec4(1.0);
 #endif
 }
+</main>

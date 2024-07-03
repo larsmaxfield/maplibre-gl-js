@@ -74,6 +74,88 @@
         }
         `;
 
+    // Custom prepare main shader function
+    const defaultPrepareMainShaderFunction = `
+        void main() {
+        
+            gl_FragColor = texture2D(u_image, v_pos);
+        
+            #ifdef OVERDRAW_INSPECTOR
+            gl_FragColor = vec4(1.0);
+        #endif
+        }
+        `;
+
+    const derivPrepareMainShaderFunction = `
+        void main() {
+        
+            vec2 epsilon = 1.0 / u_dimension;
+
+            float a = getElevation(v_pos + vec2(-epsilon.x, -epsilon.y), 0.0);
+            float b = getElevation(v_pos + vec2(0, -epsilon.y), 0.0);
+            float c = getElevation(v_pos + vec2(epsilon.x, -epsilon.y), 0.0);
+            float d = getElevation(v_pos + vec2(-epsilon.x, 0), 0.0);
+            float e = getElevation(v_pos, 0.0);
+            float f = getElevation(v_pos + vec2(epsilon.x, 0), 0.0);
+            float g = getElevation(v_pos + vec2(-epsilon.x, epsilon.y), 0.0);
+            float h = getElevation(v_pos + vec2(0, epsilon.y), 0.0);
+            float i = getElevation(v_pos + vec2(epsilon.x, epsilon.y), 0.0);
+
+            float exaggerationFactor = u_zoom < 2.0 ? 0.4 : u_zoom < 4.5 ? 0.35 : 0.3;
+            float exaggeration = u_zoom < 15.0 ? (u_zoom - 15.0) * exaggerationFactor : 0.0;
+
+            vec2 deriv = vec2(
+                (c + f + f + i) - (a + d + d + g),
+                (g + h + h + i) - (a + b + b + c)
+            ) / pow(2.0, exaggeration + (19.2562 - u_zoom));
+
+            gl_FragColor = clamp(vec4(
+                deriv.x / 2.0 + 0.5,
+                deriv.y / 2.0 + 0.5,
+                1.0,
+                1.0), 0.0, 1.0);
+        
+        #ifdef OVERDRAW_INSPECTOR
+            gl_FragColor = vec4(1.0);
+        #endif
+        }
+        `;
+    
+    const derivMainShaderFunction = `
+        void main() {
+
+            vec4 pixel = texture2D(u_image, v_pos);
+
+            vec2 deriv = ((pixel.rg * 2.0) - 1.0);
+
+            // We divide the slope by a scale factor based on the cosin of the pixel's approximate latitude
+            // to account for mercator projection distortion. see #4807 for details
+            float scaleFactor = cos(radians((u_latrange[0] - u_latrange[1]) * (1.0 - v_pos.y) + u_latrange[1]));
+            // We also multiply the slope by an arbitrary z-factor of 1.25
+            float slope = atan(1.25 * length(deriv) / scaleFactor);
+            float aspect = deriv.x != 0.0 ? atan(deriv.y, -deriv.x) : PI / 2.0 * (deriv.y > 0.0 ? 1.0 : -1.0);
+
+            // We add PI to make this property match the global light object, which adds PI/2 to the light's azimuthal
+            // position property to account for 0deg corresponding to north/the top of the viewport in the style spec
+            // and the original shader was written to accept (-illuminationDirection - 90) as the azimuthal.
+            float azimuth = u_light.y;
+
+            // Azimuth is hillshade direction, so including it causes this colormap to rotate accordingly. Remove to set 0 vertical up, 9.5 vertical down.
+            float angle = -0.5*mod((aspect+azimuth)/PI + 1.5, 2.0) + 1.0;
+            vec4 angle_color = colormap(angle);
+            
+            vec4 color = mix(vec4(1.0), angle_color, slope);
+
+            gl_FragColor = clamp(
+                color,
+                0.0, 1.0);
+
+        #ifdef OVERDRAW_INSPECTOR
+            gl_FragColor = vec4(1.0);
+        #endif
+        }
+        `;
+
     // Colormaps as shader functions
     const grayscaleShaderFunction = `
         vec4 colormap(float t) {
@@ -221,6 +303,8 @@
         }
         `;
 
+    const hillshadeAngle = 335;
+
     const map = (window.map = new maplibregl.Map({
         validateStyle: false,
         container: 'map',
@@ -281,10 +365,13 @@
                     source: 'elevationSource',
                     layout: {visibility: 'visible'},
                     paint: {
+                        'hillshade-illumination-direction': hillshadeAngle,
+                        'hillshade-illumination-anchor': 'map',
                         'elevation-colormap-breakpoint-low': 0.0,  // Sea level 0
                         'elevation-colormap-breakpoint-high': 4809.0,  // Everest 8849, Mont Blanc 4809
-                        'elevation-colormap-function': viridisShaderFunction,
-                        'elevation-main-function': customMainShaderFunction,
+                        'elevation-colormap-function': twilightShaderFunction,
+                        'elevation-main-function': derivMainShaderFunction,
+                        'elevation-prepare-main-function': derivPrepareMainShaderFunction,
                         'elevation-colormap-lowcutoff': -100.0,
                         'elevation-colormap-lowcutoff-color': '#ffffffff',
                     },
@@ -305,7 +392,8 @@
                     source: 'hillshadeSource',
                     // layout: {visibility: 'none'},
                     paint: {
-                        'hillshade-exaggeration': 0.2,
+                        'hillshade-exaggeration': 0.3,
+                        'hillshade-illumination-direction': hillshadeAngle,
                         'hillshade-illumination-anchor': 'map',
                         'hillshade-shadow-color': '#000000',
                     }

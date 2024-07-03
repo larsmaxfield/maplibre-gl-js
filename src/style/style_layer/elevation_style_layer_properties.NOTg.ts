@@ -31,6 +31,7 @@ export type ElevationPaintProps = {
     "elevation-colormap-lowcutoff": DataConstantProperty<number>,
     "elevation-colormap-lowcutoff-color": DataConstantProperty<Color>,
     "elevation-main-function": DataConstantProperty<string>,
+    "elevation-prepare-main-function": DataConstantProperty<string>,
 };
 
 export type ElevationPaintPropsPossiblyEvaluated = {
@@ -46,6 +47,7 @@ export type ElevationPaintPropsPossiblyEvaluated = {
     "elevation-colormap-lowcutoff": number,
     "elevation-colormap-lowcutoff-color": Color,
     "elevation-main-function": string,
+    "elevation-prepare-main-function": string,
 };
 
 let paint: Properties<ElevationPaintProps>;
@@ -62,6 +64,7 @@ const getPaint = () => paint = paint || new Properties({
     "elevation-colormap-lowcutoff": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-lowcutoff"] as any as StylePropertySpecification),
     "elevation-colormap-lowcutoff-color": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-colormap-lowcutoff-color"] as any as StylePropertySpecification),
     "elevation-main-function": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-main-function"] as any as StylePropertySpecification),
+    "elevation-prepare-main-function": new DataConstantProperty(elevationDefaultStyleSpec["paint_elevation"]["elevation-prepare-main-function"] as any as StylePropertySpecification),
 });
 
 export default ({ get paint() { return getPaint() } });
@@ -165,6 +168,20 @@ const elevationDefaultStyleSpec = {
                     gl_FragColor = clamp(
                         color,
                         0.0, 1.0);
+
+                #ifdef OVERDRAW_INSPECTOR
+                    gl_FragColor = vec4(1.0);
+                #endif
+                }
+                `,
+        },
+        "elevation-prepare-main-function": {
+            "type": "string",
+            "doc": "The 'void main()' shader function for elevation prepare (offscreen).",
+            "default": `
+                void main() {
+
+                    gl_FragColor = texture2D(u_image, v_pos);
 
                 #ifdef OVERDRAW_INSPECTOR
                     gl_FragColor = vec4(1.0);

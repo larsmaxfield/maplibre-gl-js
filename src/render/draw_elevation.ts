@@ -51,9 +51,10 @@ function renderElevation(
     const fbo = tile.fbo;
     const colormapShaderFunction = layer.paint.get('elevation-colormap-function');
     const mainShaderFunction = layer.paint.get('elevation-main-function');
+    const mainPrepareShaderFunction = layer.paint.get('elevation-prepare-main-function');
     if (!fbo) return;
 
-    const program = painter.useElevationProgram('elevation', colormapShaderFunction, mainShaderFunction);
+    const program = painter.useElevationProgram('elevation', colormapShaderFunction, mainShaderFunction, mainPrepareShaderFunction);
     const terrainData = painter.style.map.terrain && painter.style.map.terrain.getTerrainData(coord);
 
     context.activeTexture.set(gl.TEXTURE0);
@@ -83,6 +84,7 @@ function prepareElevation(
         const textureStride = dem.stride;
         const colormapShaderFunction = layer.paint.get('elevation-colormap-function');
         const mainShaderFunction = layer.paint.get('elevation-main-function');
+        const mainPrepareShaderFunction = layer.paint.get('elevation-prepare-main-function');
 
         const pixelData = dem.getPixels();
         context.activeTexture.set(gl.TEXTURE1);
@@ -113,7 +115,7 @@ function prepareElevation(
         context.bindFramebuffer.set(fbo.framebuffer);
         context.viewport.set([0, 0, tileSize, tileSize]);
 
-        painter.useElevationProgram('elevationPrepare', colormapShaderFunction, mainShaderFunction).draw(context, gl.TRIANGLES,
+        painter.useElevationProgram('elevationPrepare', colormapShaderFunction, mainShaderFunction, mainPrepareShaderFunction).draw(context, gl.TRIANGLES,
             depthMode, stencilMode, colorMode, CullFaceMode.disabled,
             elevationUniformPrepareValues(tile.tileID, dem, layer),
             null, layer.id, painter.rasterBoundsBuffer,
