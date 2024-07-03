@@ -49,6 +49,38 @@
     // const greenFactor = 256*interval;
     // const blueFactor = 1.0*interval;
 
+    // Colormaps as shader functions
+    const grayscaleShaderFunction = `
+        vec4 colormap(float t) {
+            //          r  g  b  a
+            return vec4(t, t, t, 1.0);
+        }
+        `;
+
+    const redscaleShaderFunction = `
+        vec4 colormap(float t) {
+            //          r  g  b  a
+            return vec4(t, 0.0, 0.0, 1.0);
+        }
+        `;
+
+    // fitting polynomials to matplotlib colormaps
+    // https://www.shadertoy.com/view/WlfXRN
+    //
+    // License CC0 (public domain) 
+    //   https://creativecommons.org/share-your-work/public-domain/cc0/
+    //
+    // feel free to use these in your own work!
+    //
+    // similar to https://www.shadertoy.com/view/XtGGzG but with a couple small differences:
+    //
+    //  - use degree 6 instead of degree 5 polynomials
+    //  - use nested horner representation for polynomials
+    //  - polynomials were fitted to minimize maximum error (as opposed to least squares)
+    //
+    // data fitted from https://github.com/BIDS/colormap/blob/master/colormaps.py
+    // (which is licensed CC0)
+
     const viridisShaderFunction =  `
         vec4 colormap(float t) {
             const vec3 c0 = vec3(0.2777273272234177, 0.005407344544966578, 0.3340998053353061);
@@ -63,17 +95,104 @@
         }
         `;
 
-    const grayscaleShaderFunction = `
+
+    const plasmaShaderFunction =  `
         vec4 colormap(float t) {
-            //          r  g  b  a
-            return vec4(t, t, t, 1.0);
+
+            const vec3 c0 = vec3(0.05873234392399702, 0.02333670892565664, 0.5433401826748754);
+            const vec3 c1 = vec3(2.176514634195958, 0.2383834171260182, 0.7539604599784036);
+            const vec3 c2 = vec3(-2.689460476458034, -7.455851135738909, 3.110799939717086);
+            const vec3 c3 = vec3(6.130348345893603, 42.3461881477227, -28.51885465332158);
+            const vec3 c4 = vec3(-11.10743619062271, -82.66631109428045, 60.13984767418263);
+            const vec3 c5 = vec3(10.02306557647065, 71.41361770095349, -54.07218655560067);
+            const vec3 c6 = vec3(-3.658713842777788, -22.93153465461149, 18.19190778539828);
+
+            return vec4(c0+t*(c1+t*(c2+t*(c3+t*(c4+t*(c5+t*c6))))), 1.0);
         }
         `;
 
-    const redscaleShaderFunction = `
+    const magmaShaderFunction =  `
         vec4 colormap(float t) {
-            //          r  g  b  a
-            return vec4(t, 0.0, 0.0, 1.0);
+
+            const vec3 c0 = vec3(-0.002136485053939582, -0.000749655052795221, -0.005386127855323933);
+            const vec3 c1 = vec3(0.2516605407371642, 0.6775232436837668, 2.494026599312351);
+            const vec3 c2 = vec3(8.353717279216625, -3.577719514958484, 0.3144679030132573);
+            const vec3 c3 = vec3(-27.66873308576866, 14.26473078096533, -13.64921318813922);
+            const vec3 c4 = vec3(52.17613981234068, -27.94360607168351, 12.94416944238394);
+            const vec3 c5 = vec3(-50.76852536473588, 29.04658282127291, 4.23415299384598);
+            const vec3 c6 = vec3(18.65570506591883, -11.48977351997711, -5.601961508734096);
+
+            return vec4(c0+t*(c1+t*(c2+t*(c3+t*(c4+t*(c5+t*c6))))), 1.0);
+
+        }
+        `;
+
+    const infernoShaderFunction =  `
+        vec4 colormap(float t) {
+
+            const vec3 c0 = vec3(0.0002189403691192265, 0.001651004631001012, -0.01948089843709184);
+            const vec3 c1 = vec3(0.1065134194856116, 0.5639564367884091, 3.932712388889277);
+            const vec3 c2 = vec3(11.60249308247187, -3.972853965665698, -15.9423941062914);
+            const vec3 c3 = vec3(-41.70399613139459, 17.43639888205313, 44.35414519872813);
+            const vec3 c4 = vec3(77.162935699427, -33.40235894210092, -81.80730925738993);
+            const vec3 c5 = vec3(-71.31942824499214, 32.62606426397723, 73.20951985803202);
+            const vec3 c6 = vec3(25.13112622477341, -12.24266895238567, -23.07032500287172);
+
+            return vec4(c0+t*(c1+t*(c2+t*(c3+t*(c4+t*(c5+t*c6))))), 1.0);
+
+        }
+        `;
+
+    // matplotlib Color Maps
+    // https://www.shadertoy.com/view/Nd3fR2
+    /* 
+    Grayscale is boring. Feel free to use these for your projects. 
+
+    I wanted more colormaps to choose from. I already had a cmap 
+    translator into textures, graphs, and csv laying around.
+    I added a simple scipy fitter to translate any cmap into poly6 
+    functions too. It doesn't work for all colormaps, but all the 
+    pretty ones work great. 
+
+    If you want to add a colormap thats not here you can use my
+    python code to make it yourself (https://pastebin.com/mf5GfGCc)
+
+    If you wonder how all the other colormaps look, see an 
+    incomplete list the matplotlib documentation 
+    (https://matplotlib.org/stable/tutorials/colors/colormaps.html)
+    or my graphs with everything (https://imgur.com/a/xfZlxlp).
+
+    If you want to imporve the default mpl color maps use gamma 
+    adjustment suggested by xrx to remove color bleeding:
+    fragColor.xyz = pow(fragColor.xyz,vec3(.455));
+    Gamma Color Adjustment is showcased here: 
+    https://www.shadertoy.com/view/WdXGzl
+    */
+    // makes twilight colormap with polynimal 6
+    const twilightShaderFunction =  `
+        vec4 colormap(float t) {
+            const vec3 c0 = vec3(0.996106,0.851653,0.940566);
+            const vec3 c1 = vec3(-6.529620,-0.183448,-3.940750);
+            const vec3 c2 = vec3(40.899579,-7.894242,38.569228);
+            const vec3 c3 = vec3(-155.212979,4.404793,-167.925730);
+            const vec3 c4 = vec3(296.687222,24.084913,315.087856);
+            const vec3 c5 = vec3(-261.270519,-29.995422,-266.972991);
+            const vec3 c6 = vec3(85.335349,9.602600,85.227117);
+            return vec4(c0+t*(c1+t*(c2+t*(c3+t*(c4+t*(c5+t*c6))))), 1.0);
+        }
+        `;
+
+    // makes twilight_shifted colormap with polynimal 6
+    const twilightshiftedShaderFunction =  `
+        vec4 colormap(float t) {
+            const vec3 c0 = vec3(0.120488,0.047735,0.106111);
+            const vec3 c1 = vec3(5.175161,0.597944,7.333840);
+            const vec3 c2 = vec3(-47.426009,-0.862094,-49.143485);
+            const vec3 c3 = vec3(197.225325,47.538667,194.773468);
+            const vec3 c4 = vec3(-361.218441,-146.888121,-389.642741);
+            const vec3 c5 = vec3(298.941929,151.947507,359.860766);
+            const vec3 c6 = vec3(-92.697067,-52.312119,-123.143476);
+            return vec4(c0+t*(c1+t*(c2+t*(c3+t*(c4+t*(c5+t*c6))))), 1.0);
         }
         `;
 
@@ -139,7 +258,7 @@
                     paint: {
                         'elevation-colormap-breakpoint-low': 0.0,  // Sea level 0
                         'elevation-colormap-breakpoint-high': 4809.0,  // Everest 8849, Mont Blanc 4809
-                        'elevation-colormap-function': viridisShaderFunction,
+                        'elevation-colormap-function': twilightShaderFunction,
                         'elevation-colormap-lowcutoff': -100.0,
                         'elevation-colormap-lowcutoff-color': '#ffffffff',
                     },
@@ -190,6 +309,16 @@
         })
     );
 
+    map.on('load', () => {
+        map.setSky({
+            'sky-color': '#808080ff',
+            'horizon-color': '#000000ff',
+            'fog-color': '#ffffffff',
+            'sky-horizon-blend': 1.0,
+            'horizon-fog-blend': 0.0,
+            'fog-ground-blend': 0.8,
+        });
+    });
     // map.on('load', () => {
     //     // Once the map has finished loading,
     //     // set paint property and
