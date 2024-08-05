@@ -39,7 +39,7 @@ To run the integration tests (except the render tests):
 npm run test-integration
 ```
 
-This includes the browser tests (see [`browser/README.md`](./browser/README.md))
+This includes the browser tests.
 
 To run the build tests
 
@@ -50,7 +50,7 @@ npm run test-build
 For running a subset of tests, you may use jest filters e.g.
 
 ```
-npm run test-integration --testPathIgnorePatterns "/test/integration/(query|build)/
+npm run test-integration -- --testPathIgnorePatterns "/test/integration/(query|build)/"
 ```
 
 Additionally, it may be helpful to use a visual jest frontend (e.g. `npx majestic`). Note that since render tests do not use Jest, these will still have to be run from the command line.
@@ -201,25 +201,14 @@ Check carefully if all changes are intended.
 
 ## Reading Vector Tile Fixtures
 
-Install `vt2geojson`, a command line utility which turns vector tiles into geojson, and `harp`, a simple file server.
-
-```
-npm install -g vt2geojson harp
-```
-
-Start a static file server
-```
-harp server .
-```
-
 Read the contents of an entire vector tile
 
 ```
-vt2geojson -z 14 -y 8803 -x 5374 http://localhost:9000/tiles/14-8803-5374.mvt
+npx vt2geojson -z 14 -y 8803 -x 5374 test/integration/assets/tiles/14-8803-5374.mvt
 ```
 
 Read the contents of a particular layer in a vector tile
 
 ```
-vt2geojson --layer poi_label -z 14 -y 8803 -x 5374 http://localhost:9000/tiles/14-8803-5374.mvt
+npx vt2geojson --layer poi_label -z 14 -y 8803 -x 5374 test/integration/assets/tiles/14-8803-5374.mvt
 ```
