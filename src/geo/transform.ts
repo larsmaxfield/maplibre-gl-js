@@ -846,7 +846,7 @@ export class Transform {
         }
 
         if (this.latRange) {
-            const h2 = screenHeight / 2;
+            const h2 = this._allowUnderZooming ? 1e-10 : screenHeight / 2;
             if (originalY - h2 < minY) modifiedY = minY + h2;
             if (originalY + h2 > maxY) modifiedY = maxY - h2;
         }
@@ -857,14 +857,14 @@ export class Transform {
             if (this._renderWorldCopies) {
                 wrappedX = wrap(originalX, centerX - worldSize / 2, centerX + worldSize / 2);
             }
-            const w2 = screenWidth / 2;
+            const w2 = this._allowUnderZooming ? 1e-10 : screenWidth / 2;
 
-            if (wrappedX - w2 < minX) modifiedX = this._allowUnderZooming ? minX : minX + w2;
-            if (wrappedX + w2 > maxX) modifiedX = this._allowUnderZooming ? maxX : maxX - w2;
+            if (wrappedX - w2 < minX) modifiedX = minX + w2;
+            if (wrappedX + w2 > maxX) modifiedX = maxX - w2;
         }
 
         // pan the map if the screen goes off the range
-        if (!this.allowUnderZooming && (modifiedX !== undefined || modifiedY !== undefined)) {
+        if (modifiedX !== undefined || modifiedY !== undefined) {
             const newPoint = new Point(modifiedX ?? originalX, modifiedY ?? originalY);
             result.center = this.unproject.call({worldSize}, newPoint).wrap();
         }
