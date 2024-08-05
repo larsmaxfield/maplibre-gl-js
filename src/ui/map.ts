@@ -233,6 +233,15 @@ export type MapOptions = {
      */
     renderWorldCopies?: boolean;
     /**
+     * If `true`, the map will allow the user to zoom out such that a single
+     * representation of the world can be smaller than the map's container.
+     * If set to `false`, the map will stop the user from zooming out beyond
+     * the bounds of the world.
+     * The minimum zoom (minZoom) is always respected.
+     * @defaultValue false
+     */
+    allowUnderZooming?: boolean;
+    /**
      * The maximum number of tiles stored in the tile cache for a given source. If omitted, the cache will be dynamically sized based on the current viewport which can be set using `maxTileCacheZoomLevels` constructor options.
      * @defaultValue null
      */
@@ -365,6 +374,7 @@ const defaultOptions: Readonly<Partial<MapOptions>> = {
     maxZoom: defaultMaxZoom,
     minPitch: defaultMinPitch,
     maxPitch: defaultMaxPitch,
+    allowUnderZooming: false,
 
     boxZoom: true,
     dragRotate: true,
@@ -571,7 +581,7 @@ export class Map extends Camera {
             throw new Error(`maxPitch must be less than or equal to ${maxPitchThreshold}`);
         }
 
-        const transform = new Transform(resolvedOptions.minZoom, resolvedOptions.maxZoom, resolvedOptions.minPitch, resolvedOptions.maxPitch, resolvedOptions.renderWorldCopies);
+        const transform = new Transform(resolvedOptions.minZoom, resolvedOptions.maxZoom, resolvedOptions.minPitch, resolvedOptions.maxPitch, resolvedOptions.renderWorldCopies, resolvedOptions.allowUnderZooming);
         super(transform, {bearingSnap: resolvedOptions.bearingSnap});
 
         this._interactive = resolvedOptions.interactive;
@@ -1132,6 +1142,19 @@ export class Map extends Camera {
      */
     setRenderWorldCopies(renderWorldCopies?: boolean | null): Map {
         this.transform.renderWorldCopies = renderWorldCopies;
+        return this._update();
+    }
+    
+    /**
+     * TODO: Write description.
+     */
+    getAllowUnderZooming(): boolean { return this.transform.allowUnderZooming; }
+
+    /**
+     * TODO: Write description.
+     */
+    setAllowUnderZooming(allowUnderZooming?: boolean | null): Map {
+        this.transform.allowUnderZooming = allowUnderZooming;
         return this._update();
     }
 

@@ -49,6 +49,7 @@ export class Transform {
     _zoom: number;
     _unmodified: boolean;
     _renderWorldCopies: boolean;
+    _allowUnderZooming: boolean;
     _minZoom: number;
     _maxZoom: number;
     _minPitch: number;
@@ -74,10 +75,11 @@ export class Transform {
      */
     nearZ: number;
 
-    constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean) {
+    constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean, allowUnderZooming?: boolean) {
         this.tileSize = 512; // constant
 
         this._renderWorldCopies = renderWorldCopies === undefined ? true : !!renderWorldCopies;
+        this._allowUnderZooming = allowUnderZooming === undefined ? false : !!allowUnderZooming;
         this._minZoom = minZoom || 0;
         this._maxZoom = maxZoom || 22;
 
@@ -103,7 +105,7 @@ export class Transform {
     }
 
     clone(): Transform {
-        const clone = new Transform(this._minZoom, this._maxZoom, this._minPitch, this.maxPitch, this._renderWorldCopies);
+        const clone = new Transform(this._minZoom, this._maxZoom, this._minPitch, this.maxPitch, this._renderWorldCopies, this._allowUnderZooming);
         clone.apply(this);
         return clone;
     }
@@ -162,6 +164,17 @@ export class Transform {
         }
 
         this._renderWorldCopies = renderWorldCopies;
+    }
+    
+    get allowUnderZooming(): boolean { return this._allowUnderZooming; }
+    set allowUnderZooming(allowUnderZooming: boolean) {
+        if (allowUnderZooming === undefined) {
+            allowUnderZooming = true;
+        } else if (allowUnderZooming === null) {
+            allowUnderZooming = false;
+        }
+
+        this._allowUnderZooming = allowUnderZooming;
     }
 
     get worldSize(): number {
@@ -787,7 +800,7 @@ export class Transform {
         let scaleX = 0;
         const {x: screenWidth, y: screenHeight} = this.size;
 
-        if (this.latRange) {
+        if (this.latRange && !this._allowUnderZooming) {
             const latRange = this.latRange;
             minY = mercatorYfromLat(latRange[1]) * worldSize;
             maxY = mercatorYfromLat(latRange[0]) * worldSize;
@@ -795,7 +808,7 @@ export class Transform {
             if (shouldZoomIn) scaleY = screenHeight / (maxY - minY);
         }
 
-        if (lngRange) {
+        if (lngRange && !this._allowUnderZooming) {
             minX = wrap(
                 mercatorXfromLng(lngRange[0]) * worldSize,
                 0,
@@ -820,16 +833,20 @@ export class Transform {
 
         if (scale) {
             // zoom in to exclude all beyond the given lng/lat ranges
-            const newPoint = new Point(
-                scaleX ? (maxX + minX) / 2 : originalX,
-                scaleY ? (maxY + minY) / 2 : originalY);
+            const pointX = this._allowUnderZooming
+                ? originalX
+                : scaleX ? (maxX + minX) / 2 : originalX;
+            const pointY = this._allowUnderZooming
+                ? originalY
+                : scaleY ? (maxY + minY) / 2 : originalY;
+            const newPoint = new Point(pointX, pointY);
             result.center = this.unproject.call({worldSize}, newPoint).wrap();
             result.zoom += this.scaleZoom(scale);
             return result;
         }
 
         if (this.latRange) {
-            const h2 = screenHeight / 2;
+            const h2 = this._allowUnderZooming ? 1e-10 : screenHeight / 2;
             if (originalY - h2 < minY) modifiedY = minY + h2;
             if (originalY + h2 > maxY) modifiedY = maxY - h2;
         }
@@ -840,7 +857,7 @@ export class Transform {
             if (this._renderWorldCopies) {
                 wrappedX = wrap(originalX, centerX - worldSize / 2, centerX + worldSize / 2);
             }
-            const w2 = screenWidth / 2;
+            const w2 = this._allowUnderZooming ? 1e-10 : screenWidth / 2;
 
             if (wrappedX - w2 < minX) modifiedX = minX + w2;
             if (wrappedX + w2 > maxX) modifiedX = maxX - w2;
