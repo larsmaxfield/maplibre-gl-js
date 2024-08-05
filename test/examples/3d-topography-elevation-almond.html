@@ -252,6 +252,8 @@
         // maxBounds: [[-Infinity,-90],[Infinity,90]],
         hash: true,
         renderWorldCopies: false,
+        allowUnderZooming: true,
+        minZoom: -1,
         style: {
             version: 8,
             sources: {
@@ -297,12 +299,11 @@
                 },
             },
             layers: [
-                
                 {
                     id: 'elevs',
                     type: 'elevation',
                     source: 'elevationSource',
-                    // layout: {visibility: 'none'},
+                    layout: {visibility: 'none'},
                     paint: {
                         'hillshade-illumination-direction': hillshadeAngle,
                         'hillshade-illumination-anchor': 'map',
@@ -321,7 +322,7 @@
                     source: 'rgb',
                     // layout: {visibility: 'none'},
                     paint: {
-                        'raster-opacity': 0.1,
+                        'raster-opacity': 0.5,
                         'raster-resampling': 'nearest',
                     }
                 },
@@ -331,7 +332,7 @@
                     source: 'hillshadeSource',
                     // layout: {visibility: 'none'},
                     paint: {
-                        'hillshade-exaggeration': 0.3,
+                        'hillshade-exaggeration': 1.0,
                         'hillshade-illumination-direction': hillshadeAngle,
                         'hillshade-illumination-anchor': 'map',
                         'hillshade-shadow-color': '#000000',
