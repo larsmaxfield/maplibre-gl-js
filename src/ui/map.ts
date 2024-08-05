@@ -1136,6 +1136,19 @@ export class Map extends Camera {
     }
 
     /**
+     * TODO: Write description.
+     */
+    getAllowUnderZooming(): boolean { return this.transform.allowUnderZooming; }
+
+    /**
+     * TODO: Write description.
+     */
+    setAllowUnderZooming(allowUnderZooming?: boolean | null): Map {
+        this.transform.allowUnderZooming = allowUnderZooming;
+        return this._update();
+    }
+
+    /**
      * Returns a [Point](https://github.com/mapbox/point-geometry) representing pixel coordinates, relative to the map's `container`,
      * that correspond to the specified geographical location.
      *

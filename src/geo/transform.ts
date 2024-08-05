@@ -49,6 +49,7 @@ export class Transform {
     _zoom: number;
     _unmodified: boolean;
     _renderWorldCopies: boolean;
+    _allowUnderZooming: boolean;
     _minZoom: number;
     _maxZoom: number;
     _minPitch: number;
@@ -74,10 +75,11 @@ export class Transform {
      */
     nearZ: number;
 
-    constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean) {
+    constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean, allowUnderZooming?: boolean) {
         this.tileSize = 512; // constant
 
         this._renderWorldCopies = renderWorldCopies === undefined ? true : !!renderWorldCopies;
+        this._allowUnderZooming = allowUnderZooming === undefined ? false : !!allowUnderZooming;
         this._minZoom = minZoom || 0;
         this._maxZoom = maxZoom || 22;
 
@@ -103,7 +105,7 @@ export class Transform {
     }
 
     clone(): Transform {
-        const clone = new Transform(this._minZoom, this._maxZoom, this._minPitch, this.maxPitch, this._renderWorldCopies);
+        const clone = new Transform(this._minZoom, this._maxZoom, this._minPitch, this.maxPitch, this._renderWorldCopies, this._allowUnderZooming);
         clone.apply(this);
         return clone;
     }
@@ -162,6 +164,17 @@ export class Transform {
         }
 
         this._renderWorldCopies = renderWorldCopies;
+    }
+
+    get allowUnderZooming(): boolean { return this._allowUnderZooming; }
+    set allowUnderZooming(allowUnderZooming: boolean) {
+        if (allowUnderZooming === undefined) {
+            allowUnderZooming = true;
+        } else if (allowUnderZooming === null) {
+            allowUnderZooming = false;
+        }
+
+        this._allowUnderZooming = allowUnderZooming;
     }
 
     get worldSize(): number {
