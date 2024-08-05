@@ -165,7 +165,7 @@ export class Transform {
 
         this._renderWorldCopies = renderWorldCopies;
     }
-
+    
     get allowUnderZooming(): boolean { return this._allowUnderZooming; }
     set allowUnderZooming(allowUnderZooming: boolean) {
         if (allowUnderZooming === undefined) {
@@ -800,7 +800,7 @@ export class Transform {
         let scaleX = 0;
         const {x: screenWidth, y: screenHeight} = this.size;
 
-        if (this.latRange) {
+        if (this.latRange && !this._allowUnderZooming) {
             const latRange = this.latRange;
             minY = mercatorYfromLat(latRange[1]) * worldSize;
             maxY = mercatorYfromLat(latRange[0]) * worldSize;
@@ -808,7 +808,7 @@ export class Transform {
             if (shouldZoomIn) scaleY = screenHeight / (maxY - minY);
         }
 
-        if (lngRange) {
+        if (lngRange && !this._allowUnderZooming) {
             minX = wrap(
                 mercatorXfromLng(lngRange[0]) * worldSize,
                 0,
@@ -833,9 +833,13 @@ export class Transform {
 
         if (scale) {
             // zoom in to exclude all beyond the given lng/lat ranges
-            const newPoint = new Point(
-                scaleX ? (maxX + minX) / 2 : originalX,
-                scaleY ? (maxY + minY) / 2 : originalY);
+            const pointX = this._allowUnderZooming
+                ? originalX
+                : scaleX ? (maxX + minX) / 2 : originalX;
+            const pointY = this._allowUnderZooming
+                ? originalY
+                : scaleY ? (maxY + minY) / 2 : originalY;
+            const newPoint = new Point(pointX, pointY);
             result.center = this.unproject.call({worldSize}, newPoint).wrap();
             result.zoom += this.scaleZoom(scale);
             return result;
@@ -855,12 +859,12 @@ export class Transform {
             }
             const w2 = screenWidth / 2;
 
-            if (wrappedX - w2 < minX) modifiedX = minX + w2;
-            if (wrappedX + w2 > maxX) modifiedX = maxX - w2;
+            if (wrappedX - w2 < minX) modifiedX = this._allowUnderZooming ? minX : minX + w2;
+            if (wrappedX + w2 > maxX) modifiedX = this._allowUnderZooming ? maxX : maxX - w2;
         }
 
         // pan the map if the screen goes off the range
-        if (modifiedX !== undefined || modifiedY !== undefined) {
+        if (!this.allowUnderZooming && (modifiedX !== undefined || modifiedY !== undefined)) {
             const newPoint = new Point(modifiedX ?? originalX, modifiedY ?? originalY);
             result.center = this.unproject.call({worldSize}, newPoint).wrap();
         }
