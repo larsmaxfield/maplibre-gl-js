@@ -170,6 +170,11 @@ export type MapOptions = {
      */
     maxPitch?: number | null;
     /**
+     * The pitch above which to apply anisotropic filtering to the map's raster layers (0-180).
+     * @defaultValue 20
+     */
+    anisotropicThresholdPitch?: number | null;
+    /**
      * If `true`, the "box zoom" interaction is enabled (see {@link BoxZoomHandler}).
      * @defaultValue true
      */
@@ -431,8 +436,9 @@ const defaultMaxZoom = 22;
 // the default values, but also the valid range
 const defaultMinPitch = 0;
 const defaultMaxPitch = 60;
+const defaultAnisotropicThresholdPitch = 20;
 
-// use this variable to check maxPitch for validity
+// use this variable to check maxPitch and anisotropicThresholdPitch for validity
 const maxPitchThreshold = 180;
 
 const defaultOptions: Readonly<Partial<MapOptions>> = {
@@ -495,7 +501,8 @@ const defaultOptions: Readonly<Partial<MapOptions>> = {
     maxCanvasSize: [4096, 4096],
     cancelPendingTileRequestsWhileZooming: true,
     centerClampedToGround: true,
-    experimentalZoomLevelsToOverscale: undefined
+    experimentalZoomLevelsToOverscale: undefined,
+    anisotropicThresholdPitch: defaultAnisotropicThresholdPitch,
 };
 
 /**
@@ -552,6 +559,7 @@ export class Map extends Camera {
     _styleDirty: boolean;
     _sourcesDirty: boolean;
     _placementDirty: boolean;
+    _anisotropicThresholdPitch: number;
 
     _loaded: boolean;
     _idleTriggered = false;
@@ -699,6 +707,14 @@ export class Map extends Camera {
             throw new Error(`maxPitch must be less than or equal to ${maxPitchThreshold}`);
         }
 
+        if (resolvedOptions.anisotropicThresholdPitch != null && resolvedOptions.anisotropicThresholdPitch < defaultMinPitch) {
+            throw new Error(`anisotropicThresholdPitch must be greater than or equal to ${defaultMinPitch}`);
+        }
+
+        if (resolvedOptions.anisotropicThresholdPitch != null && resolvedOptions.anisotropicThresholdPitch > maxPitchThreshold) {
+            throw new Error(`anisotropicThresholdPitch must be less than or equal to ${maxPitchThreshold}`);
+        }
+
         // For now we will use a temporary MercatorTransform instance.
         // Transform specialization will later be set by style when it creates its projection instance.
         // When this happens, the new transform will inherit all properties of this temporary transform.
@@ -748,6 +764,7 @@ export class Map extends Camera {
         this.transformCameraUpdate = resolvedOptions.transformCameraUpdate;
         this.transformConstrain = resolvedOptions.transformConstrain;
         this.cancelPendingTileRequestsWhileZooming = resolvedOptions.cancelPendingTileRequestsWhileZooming === true;
+        this._anisotropicThresholdPitch = resolvedOptions.anisotropicThresholdPitch;
 
         if (resolvedOptions.reduceMotion !== undefined) {
             browser.prefersReducedMotion = resolvedOptions.reduceMotion;
@@ -1344,6 +1361,50 @@ export class Map extends Camera {
      * @returns The maxPitch
      */
     getMaxPitch(): number { return this.transform.maxPitch; }
+
+    /**
+     * Returns the map's anisotropic threshold pitch.
+     * If the map is pitched beyond this threshold, anisotropic filtering will be applied to all raster layers.
+     *
+     * @returns The anisotropicThresholdPitch
+     * @example
+     * ```ts
+     * let anisotropicThresholdPitch = map.getAnisotropicThresholdPitch();
+     * ```
+     * @see [Anisotropic threshold pitch](https://maplibre.org/maplibre-gl-js/docs/examples/anisotropic-threshold-pitch/)
+     */
+    getAnisotropicThresholdPitch(): number { return this._anisotropicThresholdPitch; }
+
+    /**
+     * Sets or clears the map's anisotropic threshold pitch.
+     *
+     * A {@link ErrorEvent} event will be fired if anisotropicThresholdPitch is out of bounds.
+     *
+     * @param anisotropicThresholdPitch - The pitch above which to apply anisotropic filtering to the map's raster layers (0-180).
+     * If `null` or `undefined` is provided, the function removes the current threshold pitch (sets it to 20).
+     * 
+     * 
+     * @example
+     * ```ts
+     * map.setAnisotropicThresholdPitch(85);
+     * ```
+     * @see [Anisotropic threshold pitch](https://maplibre.org/maplibre-gl-js/docs/examples/anisotropic-threshold-pitch/)
+     */
+    setAnisotropicThresholdPitch(anisotropicThresholdPitch?: number | null): Map {
+
+        anisotropicThresholdPitch = anisotropicThresholdPitch === null || anisotropicThresholdPitch === undefined ? defaultAnisotropicThresholdPitch : anisotropicThresholdPitch;
+
+        if (anisotropicThresholdPitch > maxPitchThreshold) {
+            throw new Error(`anisotropicThresholdPitch must be less than or equal to ${maxPitchThreshold}`);
+        }
+
+        if (anisotropicThresholdPitch < defaultMinPitch) {
+            throw new Error(`anisotropicThresholdPitch must be greater than or equal to ${defaultMinPitch}`);
+        }
+
+        this._anisotropicThresholdPitch = anisotropicThresholdPitch;
+        return this._update();
+    }
 
     /**
      * Returns the state of `renderWorldCopies`. If `true`, multiple copies of the world will be rendered side by side beyond -180 and 180 degrees longitude. If set to `false`:
@@ -3609,6 +3670,7 @@ export class Map extends Camera {
             moving: this.isMoving(),
             fadeDuration,
             showPadding: this.showPadding,
+            anisotropicThresholdPitch: this.getAnisotropicThresholdPitch(),
         });
 
         this.fire(new Event('render'));

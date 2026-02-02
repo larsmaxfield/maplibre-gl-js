@@ -72,6 +72,7 @@ type PainterOptions = {
     zooming: boolean;
     moving: boolean;
     fadeDuration: number;
+    anisotropicThresholdPitch: number;
 };
 
 export type RenderOptions = {
